@@ -11,7 +11,7 @@ on:
     branches: [local-apk-build]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   apk:
@@ -79,3 +79,21 @@ jobs:
           name: ComfyPortal-zh-apk
           path: ComfyPortal-zh.apk
           retention-days: 30
+
+      # Actions artifacts need a signed-in GitHub account to download, which is
+      # useless from a phone. A release asset does not, so publish it there too.
+      - name: Attach the APK to a release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=zh-apk
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" ComfyPortal-zh.apk --clobber
+          else
+            gh release create "$TAG" \
+              --title "Comfy Portal — Simplified Chinese build" \
+              --notes "Built from the local-apk-build branch, which includes the Simplified Chinese UI.
+
+Signed with a throwaway key, so it will not install over a Play Store copy — uninstall that first." \
+              ComfyPortal-zh.apk
+          fi
