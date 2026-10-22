@@ -1,0 +1,81 @@
+# Builds an installable APK — including the Simplified Chinese UI — without any
+# of the upstream signing or Sentry secrets, so it can run in a fork.
+#
+# Run it from the fork's Actions tab (or push to this branch); the APK is
+# attached to the run as a build artifact.
+name: Build Chinese APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [local-apk-build]
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # android/ is gitignored in this repo, so it has to be generated first.
+      - name: Expo prebuild (Android)
+        run: npx expo prebuild --platform android
+
+      # A throwaway key. It is only good for installing the APK by hand, and it
+      # keeps the author's upload keystore out of the fork.
+      - name: Generate a local signing key
+        run: |
+          keytool -genkeypair -v \
+            -keystore android/app/comfy-portal-upload.keystore \
+            -storepass android -keypass android \
+            -alias comfy-portal-local \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Comfy Portal Local Build, O=Local, C=US"
+
+      - name: Inject release signing config
+        env:
+          ANDROID_KEYSTORE_PASSWORD: android
+          ANDROID_KEY_ALIAS: comfy-portal-local
+          ANDROID_KEY_PASSWORD: android
+        run: python3 .github/scripts/inject-signing-config.py android/app/build.gradle
+
+      # The Sentry plugin uploads source maps on every release build and fails
+      # without a token (see the note in google-play.yml). A fork has no Sentry
+      # project, so turn both upload paths off.
+      - name: Build release APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: android
+          ANDROID_KEY_ALIAS: comfy-portal-local
+          ANDROID_KEY_PASSWORD: android
+          SENTRY_DISABLE_AUTO_UPLOAD: 'true'
+          SENTRY_DISABLE_NATIVE_DEBUG_UPLOAD: 'true'
+        run: |
+          cd android
+          ./gradlew assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk ../ComfyPortal-zh.apk
+          ls -lh ../ComfyPortal-zh.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ComfyPortal-zh-apk
+          path: ComfyPortal-zh.apk
+          retention-days: 30
