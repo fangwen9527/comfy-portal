@@ -37,7 +37,27 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # android/ is gitignored in this repo, so it has to be generated first.
+      # android/ is gitignored and generated, so these caches have to land
+      # before prebuild creates it. Native builds for 4 ABIs are the slow part.
+      - name: Restore Gradle caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: gradle-${{ runner.os }}-
+
+      - name: Restore Android build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            android/.gradle
+            android/app/build
+            android/app/.cxx
+          key: android-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'app.json') }}
+          restore-keys: android-build-${{ runner.os }}-
+
       - name: Expo prebuild (Android)
         run: npx expo prebuild --platform android
 
@@ -78,16 +98,51 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk ../ComfyPortal-zh.apk
           ls -lh ../ComfyPortal-zh.apk
 
-      - name: Show what is inside the APK
+      # AGP only signs with v1 when minSdk < 24. Xiaomi's installer still looks
+      # for the JAR signature and refuses a v2/v3-only package with "the package
+      # contains no certificate", so sign it again with all three schemes and
+      # record what apksigner says, before and after.
+      - name: Re-sign with v1+v2+v3 and write a signature report
         run: |
-          unzip -l ComfyPortal-zh.apk | grep -oE 'lib/[^/]+/' | sort -u
-          echo "--- total entries ---"
-          unzip -l ComfyPortal-zh.apk | tail -1
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          BT="$(ls -d "$SDK"/build-tools/*/ | sort -V | tail -1)"
+          echo "build-tools: $BT"
+          {
+            echo "=== apksigner verify, BEFORE re-signing ==="
+            "${BT}apksigner" verify --verbose --print-certs ComfyPortal-zh.apk 2>&1 || true
+            echo
+            echo "=== META-INF certificate entries, BEFORE ==="
+            unzip -l ComfyPortal-zh.apk | grep -E 'META-INF/.*\.(RSA|DSA|EC|SF|MF)$' || echo "  (none - no v1 signature)"
+          } | tee before.txt
+
+          "${BT}apksigner" sign \
+            --ks android/app/comfy-portal-upload.keystore \
+            --ks-pass pass:android --key-pass pass:android \
+            --ks-key-alias comfy-portal-local \
+            --v1-signing-enabled true --v2-signing-enabled true --v3-signing-enabled true \
+            --out ComfyPortal-zh-signed.apk ComfyPortal-zh.apk
+          mv ComfyPortal-zh-signed.apk ComfyPortal-zh.apk
+
+          {
+            cat before.txt
+            echo
+            echo "=== apksigner verify, AFTER re-signing ==="
+            "${BT}apksigner" verify --verbose --print-certs ComfyPortal-zh.apk 2>&1 || true
+            echo
+            echo "=== META-INF certificate entries, AFTER ==="
+            unzip -l ComfyPortal-zh.apk | grep -E 'META-INF/.*\.(RSA|DSA|EC|SF|MF)$' || echo "  (still none)"
+            echo
+            echo "=== APK size ==="
+            ls -l ComfyPortal-zh.apk | awk '{print $5" bytes"}'
+          } > apk-verify.txt
+          cat apk-verify.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: ComfyPortal-zh-apk
-          path: ComfyPortal-zh.apk
+          path: |
+            ComfyPortal-zh.apk
+            apk-verify.txt
           retention-days: 30
 
       # Artifacts need a signed-in GitHub account to download, which is useless
@@ -98,7 +153,7 @@ jobs:
         run: |
           TAG=zh-apk
           if gh release view "$TAG" > /dev/null 2>&1; then
-            gh release upload "$TAG" ComfyPortal-zh.apk --clobber
+            gh release upload "$TAG" ComfyPortal-zh.apk apk-verify.txt --clobber
           else
-            gh release create "$TAG" --title "Comfy Portal - Simplified Chinese build" --notes "Includes the Simplified Chinese UI. Signed with a throwaway key, so uninstall any existing Comfy Portal before installing." ComfyPortal-zh.apk
+            gh release create "$TAG" --title "Comfy Portal - Simplified Chinese build" --notes "Includes the Simplified Chinese UI. Signed with a throwaway key, so uninstall any existing Comfy Portal before installing." ComfyPortal-zh.apk apk-verify.txt
           fi
