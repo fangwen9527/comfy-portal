@@ -1,6 +1,7 @@
 import { NumberSlider } from '@/components/self-ui/slider';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -11,11 +12,12 @@ interface ModelSamplingSD3Props {
 }
 
 export default function ModelSamplingSD3({ node, workflowId }: ModelSamplingSD3Props) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   return (
     <BaseNode node={node}>
-      <SubItem title="Shift">
+      <SubItem title={t('nodes.fields.shift')}>
         <NumberSlider
           value={node.inputs.shift}
           minValue={0}

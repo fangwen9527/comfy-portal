@@ -16,6 +16,7 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { parseWorkflowTemplate } from '@/features/workflow/utils/workflow-parser';
+import { useTranslation, type TranslationKey } from '@/i18n';
 import { saveWorkflowThumbnail } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
 import { Asset } from 'expo-asset';
@@ -28,8 +29,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface WorkflowPreset {
   id: string;
-  title: string;
-  description: string;
+  titleKey: TranslationKey;
+  descriptionKey: TranslationKey;
   templatePath: any; // JSON template
   thumbnailPath: number; // React Native static image require
 }
@@ -37,24 +38,22 @@ interface WorkflowPreset {
 const WORKFLOW_PRESETS: WorkflowPreset[] = [
   {
     id: '1',
-    title: 'Text to Image',
-    description: 'A basic workflow for generating images from text descriptions using Stable Diffusion models.',
+    titleKey: 'workflow.addModal.presets.textToImage.title',
+    descriptionKey: 'workflow.addModal.presets.textToImage.description',
     templatePath: require('@/assets/workflows/basic.json'),
     thumbnailPath: require('@/assets/workflows/basic.png'),
   },
   {
     id: '2',
-    title: 'Text to Image (With lora)',
-    description:
-      'A basic workflow for generating images from text descriptions using Stable Diffusion models with lora.',
+    titleKey: 'workflow.addModal.presets.textToImageLora.title',
+    descriptionKey: 'workflow.addModal.presets.textToImageLora.description',
     templatePath: require('@/assets/workflows/basic-lora.json'),
     thumbnailPath: require('@/assets/workflows/basic-lora.png'),
   },
   {
     id: '3',
-    title: 'Text to Image (Flux Dev)',
-    description:
-      'Generate images from text descriptions using Flux Dev model, Flux VAE and text encoder models required.',
+    titleKey: 'workflow.addModal.presets.textToImageFluxDev.title',
+    descriptionKey: 'workflow.addModal.presets.textToImageFluxDev.description',
     templatePath: require('@/assets/workflows/flux-dev.json'),
     thumbnailPath: require('@/assets/workflows/flux-dev.png'),
   },
@@ -71,22 +70,23 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
   const [name, setName] = useState('');
   const [customThumbnail, setCustomThumbnail] = useState('');
   const [error, setError] = useState('');
+  const { t } = useTranslation();
   const addWorkflow = useWorkflowStore((state) => state.addWorkflow);
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (name.trim().length > 50) {
       setName(name.slice(0, 50));
-      showToast.error('Name must be less than 50 characters', undefined, insets.top + 8);
+      showToast.error(t('workflow.nameTooLong', { count: 50 }), undefined, insets.top + 8);
     }
-  }, [name]);
+  }, [name, t]);
 
   const handleSelectImage = async () => {
     // Request permission
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
+      alert(t('workflow.photoPermission'));
       return;
     }
 
@@ -114,19 +114,19 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
         }
       } catch (error) {
         console.error('Failed to save thumbnail:', error);
-        alert('Failed to save image. Please try again.');
+        alert(t('workflow.saveImageFailed'));
       }
     }
   };
 
   const handleAddWorkflow = async () => {
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('workflow.nameRequired'));
       return;
     }
 
     if (!selectedPreset) {
-      setError('Please select a preset workflow');
+      setError(t('workflow.addModal.selectPresetRequired'));
       return;
     }
 
@@ -182,14 +182,14 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
   return (
     <KeyboardModal isOpen={isOpen} onClose={handleClose}>
       <KeyboardModal.Header>
-        <Text className="text-lg font-semibold text-primary-500">Add Workflow from Preset</Text>
+        <Text className="text-lg font-semibold text-primary-500">{t('workflow.addModal.title')}</Text>
       </KeyboardModal.Header>
 
       <KeyboardModal.Body scrollEnabled={false}>
         <VStack space="md">
           {/* Fixed sections */}
           <VStack space="md">
-            <KeyboardModal.Item title="Name" error={error}>
+            <KeyboardModal.Item title={t('workflow.nameLabel')} error={error}>
               <Input variant="outline" size="md" className="mt-1 overflow-hidden rounded-md border-0 bg-background-0">
                 <InputField
                   defaultValue={name}
@@ -197,32 +197,32 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
                     setName(value);
                     setError('');
                   }}
-                  placeholder="Enter workflow name"
+                  placeholder={t('workflow.namePlaceholder')}
                   className="px-3 py-2 text-sm text-primary-500"
                 />
               </Input>
             </KeyboardModal.Item>
 
-            <KeyboardModal.Item title="Thumbnail (Optional)">
+            <KeyboardModal.Item title={t('workflow.thumbnailOptional')}>
               <Pressable onPress={handleSelectImage} className="overflow-hidden rounded-md border-0 bg-background-0">
                 {customThumbnail ? (
                   <Image
                     source={{ uri: customThumbnail }}
                     className="h-40 w-full"
                     resizeMode="cover"
-                    alt="Workflow thumbnail"
+                    alt={t('workflow.thumbnailAlt')}
                   />
                 ) : selectedPreset ? (
                   <Image
                     source={selectedPreset.thumbnailPath}
                     className="h-40 w-full"
                     resizeMode="cover"
-                    alt={`${selectedPreset.title} thumbnail`}
+                    alt={t('workflow.presetThumbnailAlt', { name: t(selectedPreset.titleKey) })}
                   />
                 ) : (
                   <VStack className="h-32 items-center justify-center">
                     <ImagePlus className="text-primary-300" />
-                    <Text className="mt-2 text-sm text-primary-300">Add thumbnail</Text>
+                    <Text className="mt-2 text-sm text-primary-300">{t('workflow.addThumbnail')}</Text>
                   </VStack>
                 )}
               </Pressable>
@@ -230,7 +230,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
           </VStack>
 
           {/* Scrollable section */}
-          <KeyboardModal.Item title="Select Preset">
+          <KeyboardModal.Item title={t('workflow.addModal.selectPreset')}>
             <ScrollView className="h-40">
               <Accordion type="single" className="w-full space-y-2 bg-background-200 shadow-none">
                 {WORKFLOW_PRESETS.map((preset) => (
@@ -248,7 +248,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
                           setSelectedPreset(newPreset);
                           setCustomThumbnail('');
                           if (newPreset) {
-                            setName(newPreset.title);
+                            setName(t(newPreset.titleKey));
                             setError('');
                           } else {
                             setName('');
@@ -262,7 +262,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
                               className={`text-xs font-medium ${selectedPreset?.id === preset.id ? 'text-typography-900' : 'text-typography-700'
                                 }`}
                             >
-                              {preset.title}
+                              {t(preset.titleKey)}
                             </Text>
                           </HStack>
                           {selectedPreset?.id === preset.id ? (
@@ -275,7 +275,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
                     </AccordionHeader>
                     <AccordionContent className="bg-background-200">
                       <VStack space="sm" className="px-0 py-3">
-                        <Text className="text-xs text-typography-600">{preset.description}</Text>
+                        <Text className="text-xs text-typography-600">{t(preset.descriptionKey)}</Text>
                       </VStack>
                     </AccordionContent>
                   </AccordionItem>
@@ -293,7 +293,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
             onPress={handleClose}
             className="flex-1 rounded-md border-primary-200 bg-background-0"
           >
-            <ButtonText className="text-primary-500">Cancel</ButtonText>
+            <ButtonText className="text-primary-500">{t('common.action.cancel')}</ButtonText>
           </Button>
           <Button
             variant="solid"
@@ -301,7 +301,7 @@ export const AddWorkflowModal = ({ isOpen, onClose, serverId }: AddWorkflowModal
             isDisabled={!selectedPreset || !name.trim()}
             className={`flex-1 rounded-md ${!selectedPreset || !name.trim() ? 'bg-primary-200' : 'bg-primary-500'}`}
           >
-            <ButtonText className="text-background-0">Add</ButtonText>
+            <ButtonText className="text-background-0">{t('workflow.addButton')}</ButtonText>
           </Button>
         </HStack>
       </KeyboardModal.Footer>

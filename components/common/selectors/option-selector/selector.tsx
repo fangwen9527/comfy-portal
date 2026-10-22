@@ -2,6 +2,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
+import { useTranslation } from '@/i18n';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ChevronDown } from 'lucide-react-native';
 import React, { useCallback, useRef } from 'react';
@@ -12,10 +13,11 @@ export function OptionSelector<T extends string>({
   value,
   onChange,
   options,
-  title = 'Select Option',
+  title,
   showSearch = false,
   searchPlaceholder,
 }: OptionSelectorProps<T>) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -52,7 +54,7 @@ export function OptionSelector<T extends string>({
           onChange(newValue as T);
           handleClose();
         }}
-        title={title}
+        title={title ?? t('common.selector.selectOption')}
         options={options}
         value={value}
         showSearch={showSearch}

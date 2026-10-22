@@ -6,6 +6,7 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useServersStore } from '@/features/server/stores/server-store';
+import { useTranslation } from '@/i18n';
 import { clearNodeSchemaCache } from '@/services/node-schema';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
@@ -100,6 +101,7 @@ export function ModelSelector({
   const [isVisible, setIsVisible] = React.useState(false);
   const [localClipStrength, setLocalClipStrength] = React.useState(initialClipStrength);
   const [localModelStrength, setLocalModelStrength] = React.useState(initialModelStrength);
+  const { t } = useTranslation();
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const server = useServersStore((state) => state.servers.find((s) => s.id === serverId));
   const syncModels = useServersStore((state) => state.syncModels);
@@ -164,7 +166,7 @@ export function ModelSelector({
         {
           value,
           label: value.replace(/\.[^/.]+$/, ''),
-          description: fromServer ? 'Not installed on server' : 'From workflow · not in synced list',
+          description: fromServer ? t('common.selector.notInstalled') : t('common.selector.notInSyncedList'),
           serverName: server?.name,
         },
         ...options,
@@ -181,10 +183,10 @@ export function ModelSelector({
               </Box>
               <VStack space="xs" className="flex-1">
                 <Text className="text-sm font-medium text-typography-950" numberOfLines={1} ellipsizeMode="tail">
-                  {option?.label || 'Select model'}
+                  {option?.label || t('common.selector.selectModel')}
                 </Text>
                 <Text className="text-xs text-typography-400">
-                  {option?.description || option?.serverName || 'Choose a model'}
+                  {option?.description || option?.serverName || t('common.selector.chooseModel')}
                 </Text>
               </VStack>
             </HStack>
@@ -195,7 +197,7 @@ export function ModelSelector({
           <VStack className="px-4 pb-3">
             {onLoraModelStrengthChange && (
               <StrengthControl
-                label="Model Strength"
+                label={t('common.selector.modelStrength')}
                 value={localModelStrength}
                 onChange={setLocalModelStrength}
                 onChangeEnd={onLoraModelStrengthChange}
@@ -203,7 +205,7 @@ export function ModelSelector({
             )}
             {onLoraClipStrengthChange && (
               <StrengthControl
-                label="Clip Strength"
+                label={t('common.selector.clipStrength')}
                 value={localClipStrength}
                 onChange={setLocalClipStrength}
                 onChangeEnd={onLoraClipStrengthChange}
@@ -215,14 +217,14 @@ export function ModelSelector({
                 onPress={onDelete}
               >
                 <Icon as={Trash2} size="xs" className="text-error-300" />
-                <Text className="text-xs text-error-300">Remove LoRA</Text>
+                <Text className="text-xs text-error-300">{t('common.selector.removeLora')}</Text>
               </TouchableOpacity>
             )}
           </VStack>
         )}
       </Box>
     ),
-    [handlePress, type, localClipStrength, localModelStrength, onDelete],
+    [t, handlePress, type, localClipStrength, localModelStrength, onDelete],
   );
 
   const renderItem = useCallback(
@@ -268,10 +270,10 @@ export function ModelSelector({
       isVisible={isVisible}
       onClose={handleClose}
       onSelect={onChange}
-      title={`Select ${type}`}
+      title={t('common.selector.selectType', { type: String(type) })}
       options={optionsWithCurrent}
       value={value}
-      searchPlaceholder={`Search ${type}...`}
+      searchPlaceholder={t('common.selector.searchType', { type: String(type) })}
       showRefreshButton={!!onRefresh}
       onRefresh={onRefresh}
       isRefreshing={finalIsRefreshing}

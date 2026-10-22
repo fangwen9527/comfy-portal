@@ -2,6 +2,7 @@ import { OptionSelector } from '@/components/common/selectors/option-selector';
 import { NumberSlider } from '@/components/self-ui/slider';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -12,6 +13,7 @@ interface ImageScaleByProps {
 }
 
 export default function ImageScaleBy({ node, workflowId }: ImageScaleByProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   const upscaleMethods = [
@@ -24,15 +26,15 @@ export default function ImageScaleBy({ node, workflowId }: ImageScaleByProps) {
 
   return (
     <BaseNode node={node}>
-      <SubItem title="Upscale Method">
+      <SubItem title={t('nodes.fields.upscaleMethod')}>
         <OptionSelector
           value={node.inputs.upscale_method}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'upscale_method', value)}
           options={upscaleMethods}
-          title="Select Upscale Method"
+          title={t('nodes.selectors.upscaleMethod')}
         />
       </SubItem>
-      <SubItem title="Scale By">
+      <SubItem title={t('nodes.fields.scaleBy')}>
         <NumberSlider
           value={node.inputs.scale_by}
           minValue={0.1}

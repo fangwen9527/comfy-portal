@@ -15,6 +15,7 @@ import { ImportWorkflowModal } from '@/features/workflow/components/import-workf
 import { WorkflowCard } from '@/features/workflow/components/workflow-card';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { parseWorkflowTemplate } from '@/features/workflow/utils/workflow-parser';
+import { useTranslation } from '@/i18n';
 import { getAndConvertWorkflow as apiGetAndConvertWorkflow, listWorkflows as apiListWorkflows, ServerWorkflowFile } from '@/services/comfy-api';
 import { showToast } from '@/utils/toast';
 import { Link as ExpoLink, useLocalSearchParams } from 'expo-router';
@@ -94,6 +95,7 @@ const WorkflowEmptyState = memo(({ icon, title, description, children, align = '
 });
 
 const WorkflowTabToggle = memo(({ index, onChange }: WorkflowTabToggleProps) => {
+  const { t } = useTranslation();
   const togglePosition = useSharedValue(index === 0 ? 0 : 1);
 
   useEffect(() => {
@@ -119,7 +121,7 @@ const WorkflowTabToggle = memo(({ index, onChange }: WorkflowTabToggleProps) => 
       <HStack className="h-8">
         <Pressable
           onPress={() => onChange(0)}
-          accessibilityLabel="Switch to local workflows"
+          accessibilityLabel={t('app.workflows.switchToLocal')}
           className="h-8 items-center justify-center rounded-full"
           style={{ width: TOGGLE_THUMB_WIDTH }}
         >
@@ -127,7 +129,7 @@ const WorkflowTabToggle = memo(({ index, onChange }: WorkflowTabToggleProps) => 
         </Pressable>
         <Pressable
           onPress={() => onChange(1)}
-          accessibilityLabel="Switch to server workflows"
+          accessibilityLabel={t('app.workflows.switchToServer')}
           className="h-8 items-center justify-center rounded-full"
           style={{ width: TOGGLE_THUMB_WIDTH }}
         >
@@ -139,6 +141,7 @@ const WorkflowTabToggle = memo(({ index, onChange }: WorkflowTabToggleProps) => 
 });
 
 const LocalWorkflowsTab = memo(({ serverId, openImportModal }: LocalWorkflowsTabProps) => {
+  const { t } = useTranslation();
   const workflows = useWorkflowStore((state) => state.workflow);
   const { layout } = useDeviceLayout();
   const numColumns = layout === 'expanded' ? 4 : layout === 'regular' ? 3 : 2;
@@ -150,8 +153,8 @@ const LocalWorkflowsTab = memo(({ serverId, openImportModal }: LocalWorkflowsTab
   const renderEmptyList = () => (
     <WorkflowEmptyState
       icon={FileSearch}
-      title="No Local Workflows"
-      description="Import a workflow JSON file to get started."
+      title={t('app.workflows.local.emptyTitle')}
+      description={t('app.workflows.local.emptyDescription')}
       align="top"
     />
   );
@@ -161,12 +164,14 @@ const LocalWorkflowsTab = memo(({ serverId, openImportModal }: LocalWorkflowsTab
       <View className="bg-background-0 px-4 pb-2 pt-1">
         <HStack className="items-center justify-between rounded-lg bg-background-50 px-4 py-3">
           <VStack space="xs">
-            <Text className="text-sm font-semibold text-typography-900">Local Workflows</Text>
-            <Text className="text-xs text-typography-500">{filteredWorkflows.length} items</Text>
+            <Text className="text-sm font-semibold text-typography-900">{t('app.workflows.local.title')}</Text>
+            <Text className="text-xs text-typography-500">
+              {t('app.workflows.local.itemCount', { count: filteredWorkflows.length })}
+            </Text>
           </VStack>
           <Button size="sm" variant="link" onPress={openImportModal}>
             <ButtonIcon as={UploadCloud} />
-            <ButtonText>Import Workflow</ButtonText>
+            <ButtonText>{t('app.workflows.local.import')}</ButtonText>
           </Button>
         </HStack>
       </View>
@@ -194,6 +199,7 @@ interface ServerWorkflowsTabProps {
 }
 
 const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWorkflowsTabProps) => {
+  const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [serverWorkflows, setServerWorkflows] = useState<ServerWorkflowFile[]>([]);
   const { addWorkflow, updateWorkflow, workflow: storedWorkflows } = useWorkflowStore();
@@ -253,7 +259,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
     }
     setRefreshing(true);
     console.log(`Refreshing server workflows for serverId: ${serverId}...`);
-    setSyncProgressText('Starting sync...');
+    setSyncProgressText(t('app.workflows.server.syncStarting'));
     setSkippedCount(0);
     setSyncedCount(0);
     setFailedCount(0);
@@ -271,7 +277,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
       setServerWorkflows(fetchedFiles);
       const totalFiles = fetchedFiles.length;
       if (totalFiles === 0) {
-        setSyncProgressText('No files found on server.');
+        setSyncProgressText(t('app.workflows.server.syncNoFiles'));
         return;
       }
 
@@ -281,7 +287,13 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
           break;
         }
         processedCount++;
-        setSyncProgressText(`Processing ${processedCount}/${totalFiles}: ${serverFile.filename}`);
+        setSyncProgressText(
+          t('app.workflows.server.syncProcessing', {
+            current: processedCount,
+            total: totalFiles,
+            name: serverFile.filename,
+          }),
+        );
         try {
           const latestWorkflows = useWorkflowStore.getState().workflow;
           const identicalWorkflowInStore = latestWorkflows.find(
@@ -315,7 +327,13 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
           }
 
           if (!isActiveRun()) { break; }
-          setSyncProgressText(`Downloading ${processedCount}/${totalFiles}: ${serverFile.filename}`);
+          setSyncProgressText(
+            t('app.workflows.server.syncDownloading', {
+              current: processedCount,
+              total: totalFiles,
+              name: serverFile.filename,
+            }),
+          );
           const rawWorkflowData = await apiGetAndConvertWorkflow(serverId, serverFile.filename);
 
           if (!isActiveRun()) { break; }
@@ -327,7 +345,13 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
           }
 
           if (!isActiveRun()) { break; }
-          setSyncProgressText(`Parsing ${processedCount}/${totalFiles}: ${serverFile.filename}`);
+          setSyncProgressText(
+            t('app.workflows.server.syncParsing', {
+              current: processedCount,
+              total: totalFiles,
+              name: serverFile.filename,
+            }),
+          );
           const parsedData = parseWorkflowTemplate(rawWorkflowData);
           const workflowName = serverFile.filename.split('/').pop()?.replace(/\.json$/i, '') || serverFile.filename;
 
@@ -374,25 +398,31 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
         return;
       }
       if (cancelSyncRef.current) {
-        setSyncProgressText('Sync cancelled.');
+        setSyncProgressText(t('app.workflows.server.syncCancelled'));
       } else {
-        setSyncProgressText(`Sync complete. Synced: ${localSyncedCount}, Skipped: ${localSkippedCount}, Failed: ${localFailedCount}`);
+        setSyncProgressText(
+          t('app.workflows.server.syncComplete', {
+            synced: localSyncedCount,
+            skipped: localSkippedCount,
+            failed: localFailedCount,
+          }),
+        );
       }
     } catch (error) {
       if (!isCurrentRun()) {
         return;
       }
       if (cancelSyncRef.current) {
-        setSyncProgressText('Sync cancelled.');
+        setSyncProgressText(t('app.workflows.server.syncCancelled'));
         return;
       }
       console.warn('Failed to refresh server workflows:', error);
       showToast.error(
-        'Sync Error',
-        'An error occurred while syncing workflows. Please check your connection and server status.',
+        t('app.workflows.server.syncErrorTitle'),
+        t('app.workflows.server.syncErrorDescription'),
         insets.top + 8
       );
-      setSyncProgressText('Error listing server workflows.');
+      setSyncProgressText(t('app.workflows.server.syncListError'));
       localFailedCount += fetchedFiles?.length || 0;
       setFailedCount(localFailedCount);
     } finally {
@@ -400,7 +430,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
         setRefreshing(false);
       }
     }
-  }, [serverId, addWorkflow, updateWorkflow, insets.top]);
+  }, [serverId, addWorkflow, updateWorkflow, insets.top, t]);
 
   useEffect(() => {
     refreshingRef.current = refreshing;
@@ -438,8 +468,10 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
       >
         <HStack className="items-center justify-between">
           <VStack space="xs">
-            <Text className="text-sm font-semibold text-typography-900">Server Workflows</Text>
-            <Text className="text-xs text-typography-500">Synced {workflowsToDisplay.length} items</Text>
+            <Text className="text-sm font-semibold text-typography-900">{t('app.workflows.server.title')}</Text>
+            <Text className="text-xs text-typography-500">
+              {t('app.workflows.server.syncedCount', { count: workflowsToDisplay.length })}
+            </Text>
           </VStack>
           <HStack space="sm">
             <Button
@@ -451,7 +483,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
               <Animated.View style={syncIconAnimatedStyle}>
                 <ButtonIcon as={RefreshCw} />
               </Animated.View>
-              <ButtonText>{refreshing ? 'Syncing' : 'Sync'}</ButtonText>
+              <ButtonText>{refreshing ? t('app.workflows.server.syncing') : t('app.workflows.server.sync')}</ButtonText>
             </Button>
             <Button
               size="sm"
@@ -461,7 +493,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
               onPress={onRequestClear}
             >
               <ButtonIcon as={Trash2} />
-              <ButtonText>Clear</ButtonText>
+              <ButtonText>{t('app.workflows.clear')}</ButtonText>
             </Button>
           </HStack>
         </HStack>
@@ -488,17 +520,19 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
         >
           <WorkflowEmptyState
             icon={ServerCrash}
-            title="No Synced Server Workflows"
-            description="Tap Sync above to refresh."
+            title={t('app.workflows.server.emptyTitle')}
+            description={t('app.workflows.server.emptyDescription')}
             align="top"
           >
             <VStack space="xs" className="w-full rounded-lg bg-background-50 px-4 py-3">
               <Text className="text-center text-xs text-typography-500">
-                Make sure <Text className="font-medium text-typography-700">comfy-portal-endpoint</Text> is installed on the server side.
+                {t('app.workflows.server.endpointHintPrefix')}
+                <Text className="font-medium text-typography-700">comfy-portal-endpoint</Text>
+                {t('app.workflows.server.endpointHintSuffix')}
               </Text>
               <ExpoLink href="https://github.com/ShunL12324/comfy-portal-endpoint" className="self-center">
                 <Text className="text-xs text-primary-500 underline">
-                  Installation guide
+                  {t('app.workflows.server.installationGuide')}
                 </Text>
               </ExpoLink>
             </VStack>
@@ -543,6 +577,7 @@ const ServerWorkflowsTab = ({ serverId, isActiveTab, onRequestClear }: ServerWor
 };
 
 const WorkflowsScreen = () => {
+  const { t } = useTranslation();
   const { serverId } = useLocalSearchParams<{ serverId: string }>();
   const server = useServersStore((state) => state.servers.find((s) => s.id === serverId));
   const workflows = useWorkflowStore((state) => state.workflow);
@@ -600,8 +635,8 @@ const WorkflowsScreen = () => {
       <View className="flex-1 bg-background-0">
         <WorkflowEmptyState
           icon={ServerCrash}
-          title="Server Not Found"
-          description="This server no longer exists in your server list."
+          title={t('app.workflows.serverNotFound')}
+          description={t('app.workflows.serverNotFoundDescription')}
         />
       </View>
     );
@@ -611,8 +646,8 @@ const WorkflowsScreen = () => {
       <View className="flex-1 bg-background-0">
         <WorkflowEmptyState
           icon={ServerCrash}
-          title="Server ID Missing"
-          description="The current route does not include a valid server ID."
+          title={t('app.workflows.serverIdMissing')}
+          description={t('app.workflows.serverIdMissingDescription')}
         />
       </View>
     );
@@ -621,7 +656,7 @@ const WorkflowsScreen = () => {
   return (
     <View className={`flex-1 bg-background-0`}>
       <AppBar
-        title={server?.name || 'Workflows'}
+        title={server?.name || t('app.workflows.title')}
         showBack
         centerTitle={true}
         rightElement={<WorkflowTabToggle index={index} onChange={setIndex} />}
@@ -652,9 +687,13 @@ const WorkflowsScreen = () => {
           handleClearServerWorkflows();
           setIsClearAlertOpen(false);
         }}
-        title="Clear Synced Workflows"
-        description={`This will remove ${serverWorkflowsCount} synced workflow${serverWorkflowsCount === 1 ? '' : 's'} from ${server.name}. This action cannot be undone.`}
-        confirmText="Clear"
+        title={t('app.workflows.clearDialog.title')}
+        description={
+          serverWorkflowsCount === 1
+            ? t('app.workflows.clearDialog.descriptionOne', { server: server.name })
+            : t('app.workflows.clearDialog.description', { count: serverWorkflowsCount, server: server.name })
+        }
+        confirmText={t('app.workflows.clear')}
         confirmButtonColor="bg-error-500"
       />
     </View>

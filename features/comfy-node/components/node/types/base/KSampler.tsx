@@ -4,6 +4,7 @@ import { SchedulerSelector } from '@/components/common/selectors/scheduler';
 import { NumberSlider } from '@/components/self-ui/slider';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SeedControl from '../../common/seed-control';
 import SubItem from '../../common/sub-item';
@@ -14,12 +15,13 @@ interface KSamplerProps {
   workflowId: string;
 }
 export default function KSampler({ node, workflowId }: KSamplerProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   return (
     <BaseNode node={node}>
-      <SeedControl node={node} workflowId={workflowId} inputKey="seed" title="Seed" />
-      <SubItem title="Steps">
+      <SeedControl node={node} workflowId={workflowId} inputKey="seed" title={t('nodes.seed.title')} />
+      <SubItem title={t('nodes.fields.steps')}>
         <NumberSlider
           value={node.inputs.steps}
           minValue={1}
@@ -29,7 +31,7 @@ export default function KSampler({ node, workflowId }: KSamplerProps) {
           space={12}
         />
       </SubItem>
-      <SubItem title="CFG">
+      <SubItem title={t('nodes.fields.cfg')}>
         <NumberSlider
           value={node.inputs.cfg}
           minValue={1}
@@ -40,19 +42,19 @@ export default function KSampler({ node, workflowId }: KSamplerProps) {
           decimalPlaces={1}
         />
       </SubItem>
-      <SubItem title="Sampler">
+      <SubItem title={t('nodes.fields.sampler')}>
         <SamplerSelector
           value={node.inputs.sampler_name}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'sampler_name', value)}
         />
       </SubItem>
-      <SubItem title="Scheduler">
+      <SubItem title={t('nodes.fields.scheduler')}>
         <SchedulerSelector
           value={node.inputs.scheduler}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'scheduler', value)}
         />
       </SubItem>
-      <SubItem title="Denoise">
+      <SubItem title={t('nodes.fields.denoise')}>
         <NumberSlider
           value={node.inputs.denoise}
           minValue={0}

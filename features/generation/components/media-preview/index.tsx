@@ -15,6 +15,7 @@ import { ZoomableMedia } from './zoomable-media';
 
 import { useGenerationProgress, useGenerationStatus } from '@/features/generation/context/generation-context';
 import { isVideoUrl } from '@/features/generation/utils/media';
+import { useTranslation } from '@/i18n';
 
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { PlayCircle } from 'lucide-react-native';
@@ -48,6 +49,7 @@ export const MediaPreview = memo(function ParallaxMedia({
   workflowId,
   serverId,
 }: ParallaxMediaProps) {
+  const { t } = useTranslation();
   const { generatedMedia, status } = useGenerationStatus();
   const { progress } = useGenerationProgress();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -147,8 +149,8 @@ export const MediaPreview = memo(function ParallaxMedia({
             <View className="min-w-[48px] items-center justify-center rounded-full bg-black/50 px-2.5 py-1">
               <Text className="text-center text-xs font-medium text-white">
                 {isVideoUrl(generatedMedia[activeIndex] || '')
-                  ? 'Video'
-                  : 'Image'}
+                  ? t('generation.media.video')
+                  : t('generation.media.image')}
               </Text>
             </View>
             {generatedMedia.length > 1 && (
@@ -217,7 +219,7 @@ export const MediaPreview = memo(function ParallaxMedia({
                   transition={{ type: 'timing', duration: 300, delay: 2000 }}
                   className="absolute bottom-16 left-0 right-0 items-center justify-center pointer-events-none"
                 >
-                  <Text className="text-sm font-medium text-white/70">Long press to open menu</Text>
+                  <Text className="text-sm font-medium text-white/70">{t('generation.preview.longPressHint')}</Text>
                 </MotiView>
 
                 {generatedMedia.length > 1 && (
@@ -265,13 +267,15 @@ export const MediaPreview = memo(function ParallaxMedia({
               <Icon as={ImageIcon} size="xl" className="h-10 w-10 text-typography-300" />
             </View>
             <View className="items-center gap-1">
-              <Text className="text-base font-semibold text-typography-800">No Media Yet</Text>
+              <Text className="text-base font-semibold text-typography-800">{t('generation.preview.emptyTitle')}</Text>
               <Text className="text-center text-sm text-typography-500">
-                Generate an image to preview results here.
+                {t('generation.preview.emptyDescription')}
               </Text>
               {status === 'generating' && progress.max > 0 && (
                 <Text className="text-xs text-typography-400">
-                  Generating... {Math.round((progress.value / progress.max) * 100)}%
+                  {t('generation.status.generatingPercent', {
+                    percent: Math.round((progress.value / progress.max) * 100),
+                  })}
                 </Text>
               )}
             </View>

@@ -1,0 +1,73 @@
+const common = {
+  action: {
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    save: 'Save',
+    delete: 'Delete',
+    edit: 'Edit',
+    retry: 'Retry',
+    done: 'Done',
+  },
+  nav: {
+    server: 'Server',
+    servers: 'Servers',
+    setting: 'Setting',
+    settings: 'Settings',
+  },
+  webview: {
+    slowLoadingTitle: 'Network is slow',
+    slowLoadingDescription: 'You can keep waiting or open this page in your browser.',
+    loadFailedTitle: 'Failed to load this page',
+    checkNetwork: 'Please check your network connection and try again.',
+    openInBrowser: 'Open in Browser',
+    pleaseWait: 'Please wait a moment.',
+  },
+  selector: {
+    selectModel: 'Select model',
+    chooseModel: 'Choose a model',
+    notInstalled: 'Not installed on server',
+    notInSyncedList: 'From workflow · not in synced list',
+    selectType: 'Select {type}',
+    searchType: 'Search {type}...',
+    modelStrength: 'Model Strength',
+    clipStrength: 'Clip Strength',
+    removeLora: 'Remove LoRA',
+    selectOption: 'Select Option',
+    selectSampler: 'Select Sampler',
+    selectScheduler: 'Select Scheduler',
+  },
+  tabToggle: {
+    switchToNodes: 'Switch to nodes',
+    switchToAssistant: 'Switch to AI assistant',
+  },
+  quickAction: {
+    noActions: 'No Quick Actions configured',
+    noActionsHint: 'Create one from a Load Image node first',
+    targetMissing: 'Quick Action target no longer exists',
+    targetMissingHint: 'Please reconfigure from a Load Image node',
+  },
+  validation: {
+    hostRequired: 'Host is required',
+    hostInvalid: 'Invalid host or IP address',
+    ipInvalid: 'Invalid IP address',
+    portRequired: 'Port is required',
+    portNumber: 'Port must be a number',
+    portRange: 'Port must be between {min} and {max}',
+  },
+  error: {
+    serverNotFound: 'Server not found',
+    listWorkflowsHttp: 'Failed to list workflows: {status} {detail}',
+    invalidMediaUrl: 'Invalid media URL',
+    listWorkflowsFailed: 'Failed to list workflows: Server reported an error',
+    workflowDataMissing: 'Converted workflow data is missing in the response',
+    queueFailed: 'Failed to get queue',
+    historyFailed: 'Failed to get history',
+    generationTimedOut: 'Generation timed out (no response for 10 minutes)',
+    generationInterrupted: 'Generation interrupted',
+    wsNotConnected: 'WebSocket not connected',
+    unknown: 'Unknown error',
+  },
+};
+
+export type CommonStrings = typeof common;
+export default common;

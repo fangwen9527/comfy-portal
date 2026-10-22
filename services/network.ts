@@ -1,4 +1,5 @@
 import { Server } from '@/features/server/types';
+import { t } from '@/i18n';
 import NetInfo from '@react-native-community/netinfo';
 import { fetch } from 'expo/fetch';
 import { Platform } from 'react-native';
@@ -96,7 +97,7 @@ const MAX_PORT = 65535;
  */
 export function validateHost(host: string): string {
   if (host.length === 0) {
-    return 'Host is required';
+    return t('common.validation.hostRequired');
   }
 
   const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
@@ -104,7 +105,7 @@ export function validateHost(host: string): string {
   const localhostRegex = /^localhost$/;
 
   if (!ipRegex.test(host) && !domainRegex.test(host) && !localhostRegex.test(host)) {
-    return 'Invalid host or IP address';
+    return t('common.validation.hostInvalid');
   }
 
   if (ipRegex.test(host)) {
@@ -112,7 +113,7 @@ export function validateHost(host: string): string {
     for (const part of parts) {
       const num = parseInt(part, 10);
       if (num < 0 || num > 255) {
-        return 'Invalid IP address';
+        return t('common.validation.ipInvalid');
       }
     }
   }
@@ -128,14 +129,14 @@ export function validateHost(host: string): string {
  */
 export function validatePort(port: string): string {
   if (port.length === 0) {
-    return 'Port is required';
+    return t('common.validation.portRequired');
   }
   const portNum = parseInt(port, 10);
   if (isNaN(portNum)) {
-    return 'Port must be a number';
+    return t('common.validation.portNumber');
   }
   if (portNum < MIN_PORT || portNum > MAX_PORT) {
-    return `Port must be between ${MIN_PORT} and ${MAX_PORT}`;
+    return t('common.validation.portRange', { min: MIN_PORT, max: MAX_PORT });
   }
   return '';
 }

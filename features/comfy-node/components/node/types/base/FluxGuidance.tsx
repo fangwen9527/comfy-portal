@@ -1,6 +1,7 @@
 import { NumberInput } from '@/components/self-ui/number-input';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 interface FluxGuidanceProps {
@@ -10,10 +11,11 @@ interface FluxGuidanceProps {
 }
 
 export default function FluxGuidance({ node, serverId, workflowId }: FluxGuidanceProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="Guidance">
+      <SubItem title={t('nodes.fields.guidance')}>
         <NumberInput
           value={node.inputs.guidance}
           onChange={(value) => {

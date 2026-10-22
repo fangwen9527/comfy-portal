@@ -9,6 +9,7 @@ import { Textarea, TextareaInput } from '@/components/ui/textarea';
 import { VStack } from '@/components/ui/vstack';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { useNodeSchema } from '@/hooks/useNodeSchema';
 import { WidgetSpec } from '@/services/node-schema';
 import * as Linking from 'expo-linking';
@@ -32,6 +33,7 @@ interface UnknownNodeProps {
  * enum from free text and so lets users type values the server will reject.
  */
 export default function UnknownNode({ node, serverId, workflowId }: UnknownNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const schema = useNodeSchema(serverId, node.class_type);
 
@@ -65,7 +67,7 @@ export default function UnknownNode({ node, serverId, workflowId }: UnknownNodeP
           ? spec.options.map((option) => ({ value: option, label: option }))
           : [
               ...spec.options.map((option) => ({ value: option, label: option })),
-              { value: current, label: current, description: 'Not offered by this server' },
+              { value: current, label: current, description: t('nodes.common.notOfferedByServer') },
             ];
         return (
           <SubItem key={key} title={key}>
@@ -226,14 +228,14 @@ export default function UnknownNode({ node, serverId, workflowId }: UnknownNodeP
         <>
           <Badge size="sm" variant="solid" action="warning">
             <BadgeIcon as={AlertCircle} className="mr-1" />
-            <BadgeText>Compat</BadgeText>
+            <BadgeText>{t('nodes.common.compat')}</BadgeText>
           </Badge>
           <TouchableOpacity
             onPress={handleRequestSupport}
             className="ml-1 flex-row items-center justify-center rounded-sm bg-background-50 px-2 py-1 active:bg-background-100"
           >
             <Icon as={GitPullRequest} size="sm" className="mr-1 text-blue-500" />
-            <Text className="text-xs text-blue-500">Request Support</Text>
+            <Text className="text-xs text-blue-500">{t('nodes.common.requestSupport')}</Text>
           </TouchableOpacity>
         </>
       }
@@ -246,7 +248,7 @@ export default function UnknownNode({ node, serverId, workflowId }: UnknownNodeP
           })
         ) : (
           <Text size="sm" className="text-typography-500">
-            This node has no adjustable parameters.
+            {t('nodes.common.noParameters')}
           </Text>
         )}
       </VStack>

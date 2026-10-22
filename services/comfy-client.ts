@@ -1,4 +1,5 @@
 import { Server } from '@/features/server/types';
+import { t } from '@/i18n';
 import { Workflow } from '@/features/workflow/types';
 import { getInstallId } from '@/store/install-id';
 
@@ -165,7 +166,7 @@ export class ComfyClient {
     const url = await buildServerUrl(this.useSSL, this.host, this.port, path);
     const response = await fetchWithAuth(url, this.token);
     if (!response.ok) {
-      throw new Error('Failed to get queue');
+      throw new Error(t('common.error.queueFailed'));
     }
     return response.json();
   }
@@ -354,7 +355,7 @@ export class ComfyClient {
           // well still be running, so the job must stay recoverable.
           this.resolveTracked(promptId, {
             success: false,
-            error: 'Generation timed out (no response for 10 minutes)',
+            error: t('common.error.generationTimedOut'),
             aborted: true,
           });
         }
@@ -497,7 +498,7 @@ export class ComfyClient {
           if (msgPromptId && this.trackedPrompts.has(msgPromptId)) {
             const errorMsg = message.data?.exception_message
               || message.data?.error
-              || 'Unknown error';
+              || t('common.error.unknown');
             const nodeType = message.data?.node_type;
             const detail = nodeType ? `[${nodeType}] ${errorMsg}` : errorMsg;
             this.resolveTracked(msgPromptId, { success: false, error: detail.trim() });
@@ -507,7 +508,7 @@ export class ComfyClient {
 
         case 'execution_interrupted': {
           if (msgPromptId && this.trackedPrompts.has(msgPromptId)) {
-            this.resolveTracked(msgPromptId, { success: false, error: 'Generation interrupted', aborted: true });
+            this.resolveTracked(msgPromptId, { success: false, error: t('common.error.generationInterrupted'), aborted: true });
           }
           break;
         }
@@ -539,7 +540,7 @@ export class ComfyClient {
       // the caller keeps the job recoverable over HTTP.
       return Promise.resolve({
         success: false,
-        error: 'WebSocket not connected',
+        error: t('common.error.wsNotConnected'),
         aborted: true,
       });
     }
@@ -613,7 +614,7 @@ export class ComfyClient {
     const url = await buildServerUrl(this.useSSL, this.host, this.port, path);
     const response = await fetchWithAuth(url, this.token);
     if (!response.ok) {
-      throw new Error('Failed to get history');
+      throw new Error(t('common.error.historyFailed'));
     }
     return response.json();
   }

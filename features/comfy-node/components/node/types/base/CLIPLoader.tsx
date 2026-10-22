@@ -2,6 +2,7 @@ import { ModelSelector } from '@/components/common/selectors/model';
 import { OptionSelector } from '@/components/common/selectors/option-selector';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -12,6 +13,7 @@ interface CLIPLoaderProps {
 }
 
 export default function CLIPLoader({ node, serverId, workflowId }: CLIPLoaderProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   const typeOptions = [
@@ -46,15 +48,15 @@ export default function CLIPLoader({ node, serverId, workflowId }: CLIPLoaderPro
         inputName="clip_name"
         serverId={serverId}
       />
-      <SubItem title="Type">
+      <SubItem title={t('nodes.fields.type')}>
         <OptionSelector
           value={node.inputs.type}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'type', value)}
           options={typeOptions}
-          title="Select CLIP Type"
+          title={t('nodes.selectors.clipType')}
         />
       </SubItem>
-      <SubItem title="Device">
+      <SubItem title={t('nodes.fields.device')}>
         <OptionSelector
           value={node.inputs.device}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'device', value)}
@@ -62,7 +64,7 @@ export default function CLIPLoader({ node, serverId, workflowId }: CLIPLoaderPro
             { label: 'default', value: 'default' },
             { label: 'cpu', value: 'cpu' },
           ]}
-          title="Select Device"
+          title={t('nodes.selectors.device')}
         />
       </SubItem>
     </BaseNode>

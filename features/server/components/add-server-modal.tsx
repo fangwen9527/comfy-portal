@@ -8,6 +8,7 @@ import { View } from '@/components/ui/view';
 import { VStack } from '@/components/ui/vstack';
 import { useServersStore } from '@/features/server/stores/server-store';
 import { Server } from '@/features/server/types';
+import { useTranslation } from '@/i18n';
 import { parseServerUrl, validateHost, validatePort } from '@/services/network';
 import { useResolvedTheme } from '@/store/theme';
 import {
@@ -28,9 +29,11 @@ export interface AddServerModalRef {
 }
 
 const MAX_NAME_LENGTH = 30;
+const SSL_OPTIONS: Server['useSSL'][] = ['Auto', 'Always', 'Never'];
 
 export const AddServerModal = forwardRef<AddServerModalRef, AddServerModalProps>(
   (props, ref) => {
+    const { t } = useTranslation();
     const theme = useResolvedTheme();
     const isDarkMode = theme === 'dark';
     const insets = useSafeAreaInsets();
@@ -99,10 +102,10 @@ export const AddServerModal = forwardRef<AddServerModalRef, AddServerModalProps>
 
     const validateName = (value: string) => {
       if (value.length === 0) {
-        return 'Name is required';
+        return t('server.nameRequired');
       }
       if (value.length > MAX_NAME_LENGTH) {
-        return `Name must be less than ${MAX_NAME_LENGTH} characters`;
+        return t('server.nameTooLong', { count: MAX_NAME_LENGTH });
       }
       return '';
     };
@@ -128,6 +131,12 @@ export const AddServerModal = forwardRef<AddServerModalRef, AddServerModalProps>
         token: token || undefined,
       });
       handleClose();
+    };
+
+    const sslLabels: Record<Server['useSSL'], string> = {
+      Auto: t('server.sslAuto'),
+      Always: t('server.sslAlways'),
+      Never: t('server.sslNever'),
     };
 
     const handleClose = useCallback(() => {
@@ -161,61 +170,64 @@ export const AddServerModal = forwardRef<AddServerModalRef, AddServerModalProps>
         >
           <VStack space="md" style={{ paddingBottom: insets.bottom + 24 }}>
               <View className="pb-2">
-                <Text className="text-lg font-semibold text-primary-500">Add Server</Text>
+                <Text className="text-lg font-semibold text-primary-500">{t('server.addTitle')}</Text>
               </View>
 
               <BottomSheetFormInput
-                title="Name"
+                title={t('server.nameLabel')}
                 error={nameError}
                 defaultValue={name}
                 onChangeText={(value: string) => {
                   setName(value);
                   setNameError('');
                 }}
-                placeholder="Server name"
+                placeholder={t('server.namePlaceholder')}
                 maxLength={MAX_NAME_LENGTH}
               />
 
               <BottomSheetFormInput
-                title="Host"
+                title={t('server.hostLabel')}
                 error={hostError}
                 defaultValue={host}
                 onChangeText={(value: string) => {
                   setHost(value);
                   setHostError('');
                 }}
-                placeholder="Host or IP address"
+                placeholder={t('server.hostPlaceholder')}
                 autoCapitalize="none"
                 autoCorrect={false}
               />
 
               <BottomSheetFormInput
-                title="Port"
+                title={t('server.portLabel')}
                 error={portError}
                 defaultValue={port}
                 onChangeText={(value: string) => {
                   setPort(value);
                   setPortError('');
                 }}
-                placeholder="Port number"
+                placeholder={t('server.portPlaceholder')}
                 keyboardType="numeric"
               />
 
               <BottomSheetFormInput
-                title="Authorization Token (Optional)"
+                title={t('server.tokenLabel')}
                 defaultValue={token}
                 onChangeText={(value: string) => setToken(value)}
-                placeholder="Enter token (without 'Bearer')"
+                placeholder={t('server.tokenPlaceholder')}
                 secureTextEntry={true}
               />
 
               <VStack space="xs">
-                <Text className="text-sm font-medium text-typography-600">Use SSL</Text>
+                <Text className="text-sm font-medium text-typography-600">{t('server.useSSLLabel')}</Text>
                 <SegmentedControl
-                  options={['Auto', 'Always', 'Never']}
-                  value={useSSL}
-                  onChange={(value) => {
-                    setUseSSL(value as Server['useSSL']);
+                  options={SSL_OPTIONS.map((option) => sslLabels[option])}
+                  value={sslLabels[useSSL]}
+                  onChange={(label) => {
+                    const option = SSL_OPTIONS.find((candidate) => sslLabels[candidate] === label);
+                    if (option) {
+                      setUseSSL(option);
+                    }
                   }}
                   className="mt-1"
                 />
@@ -223,10 +235,10 @@ export const AddServerModal = forwardRef<AddServerModalRef, AddServerModalProps>
 
               <HStack space="sm" className="mt-3">
                 <Button variant="outline" onPress={handleClose} className="flex-1 rounded-md bg-background-100 py-2">
-                  <ButtonText className="text-primary-400">Cancel</ButtonText>
+                  <ButtonText className="text-primary-400">{t('common.action.cancel')}</ButtonText>
                 </Button>
                 <Button variant="solid" onPress={handleSave} className="flex-1 rounded-md bg-primary-500 py-2">
-                  <ButtonText className="text-background-0">Add</ButtonText>
+                  <ButtonText className="text-background-0">{t('server.addButton')}</ButtonText>
                 </Button>
               </HStack>
             </VStack>

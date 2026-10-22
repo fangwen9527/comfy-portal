@@ -10,12 +10,14 @@ import { VStack } from '@/components/ui/vstack';
 import { AddServerModal, type AddServerModalRef } from '@/features/server/components/add-server-modal';
 import { ServerCard } from '@/features/server/components/server-card';
 import { useServersStore } from '@/features/server/stores/server-store';
+import { useTranslation } from '@/i18n';
 import { Link } from 'expo-router';
 import { ArrowRight, Plus, RefreshCcw, ScanSearch } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React, { useRef, useState } from 'react';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const addServerModalRef = useRef<AddServerModalRef>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { servers, refreshServer } = useServersStore();
@@ -29,7 +31,7 @@ export default function HomeScreen() {
   return (
     <View className={`flex-1 bg-background-0`}>
       <AppBar
-        title="Servers"
+        title={t('app.home.title')}
         titleSize="xl"
         bottomElement={
           <HStack space="sm" className="items-center">
@@ -42,7 +44,7 @@ export default function HomeScreen() {
             >
               <HStack space="sm" className="items-center justify-center">
                 <Icon as={Plus} size="md" className="text-primary-500" />
-                <Text className="text-sm font-medium text-typography-900">Add Server</Text>
+                <Text className="text-sm font-medium text-typography-900">{t('app.home.addServer')}</Text>
               </HStack>
             </Button>
             <Button
@@ -97,15 +99,16 @@ export default function HomeScreen() {
                     </MotiView>
                     <VStack space="xs" className="items-center">
                       <Text className="text-center text-sm text-typography-500">
-                        Click the <Text className="text-primary-500">+ Add Server</Text> button above to connect to your
-                        ComfyUI instance
+                        {t('app.home.emptyHintPrefix')}
+                        <Text className="text-primary-500">{t('app.home.emptyHintAction')}</Text>
+                        {t('app.home.emptyHintSuffix')}
                       </Text>
                     </VStack>
                   </VStack>
 
                   <VStack space="md" className="items-center">
                     <HStack space="xs" className="items-center justify-center">
-                      <Text className="text-sm text-typography-500">New to ComfyUI?</Text>
+                      <Text className="text-sm text-typography-500">{t('app.home.newToComfyui')}</Text>
                       <Link href="/guide" asChild>
                         <Button
                           variant="outline"
@@ -114,7 +117,7 @@ export default function HomeScreen() {
                           className="rounded-xl border-0 px-0 data-[hover=true]:opacity-70"
                         >
                           <HStack space="xs" className="items-center justify-center">
-                            <Text className="text-sm font-medium text-primary-500">Setup Instructions</Text>
+                            <Text className="text-sm font-medium text-primary-500">{t('app.home.setupInstructions')}</Text>
                             <Icon as={ArrowRight} size="xs" className="text-primary-500" />
                           </HStack>
                         </Button>

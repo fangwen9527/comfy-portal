@@ -1,6 +1,7 @@
 import { Server } from '@/features/server/types';
 import { useServersStore } from '@/features/server/stores/server-store';
 import { Workflow } from '@/features/workflow/types';
+import { t } from '@/i18n';
 import { ComfyClient } from '@/services/comfy-client';
 import { getGeneratedMedia, saveGeneratedMedia } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
@@ -282,9 +283,9 @@ function errorMessageFromEntry(entry: any): string {
   const messages: [string, any][] = entry?.status?.messages ?? [];
   const failure = messages.find(([event]) => event === 'execution_error');
   const data = failure?.[1];
-  if (!data) return 'Generation failed on the server.';
+  if (!data) return t('generation.toast.serverGenerationFailed');
   const nodeType = data.node_type;
-  const message = data.exception_message || 'Unknown error';
+  const message = data.exception_message || t('generation.toast.unknownError');
   return nodeType ? `[${nodeType}] ${message}` : message;
 }
 
@@ -341,7 +342,7 @@ async function reconcileServer(serverId: string): Promise<boolean> {
       continue;
     }
     if (outcome === 'error') {
-      showToast.error('Generation Failed', errorMessageFromEntry(entry));
+      showToast.error(t('generation.toast.generationFailed'), errorMessageFromEntry(entry));
     }
   }
 
@@ -365,7 +366,7 @@ async function reconcileServer(serverId: string): Promise<boolean> {
         // Not in history, not in the queue, and old enough that it isn't just
         // a lag between the two lookups: the server no longer knows about it.
         usePendingJobsStore.getState().removeJob(job.promptId);
-        showToast.error('Generation Lost', 'The server no longer has this generation.');
+        showToast.error(t('generation.toast.generationLost.title'), t('generation.toast.generationLost.message'));
       } else {
         needsAnotherPass = true;
       }

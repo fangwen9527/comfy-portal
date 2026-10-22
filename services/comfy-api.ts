@@ -1,4 +1,5 @@
 import { useServersStore } from "@/features/server/stores/server-store";
+import { t } from '@/i18n';
 import * as FileSystem from 'expo-file-system/legacy';
 import { buildServerUrl, fetchWithAuth } from "./network";
 
@@ -144,7 +145,7 @@ export const listWorkflows = async (serverId: string): Promise<ServerWorkflowFil
   try {
     const server = useServersStore.getState().servers.find((s) => s.id === serverId);
     if (!server) {
-      throw new Error('Server not found');
+      throw new Error(t('common.error.serverNotFound'));
     }
 
     const url = await buildServerUrl(server.useSSL, server.host, server.port, '/api/cpe/workflow/list');
@@ -157,13 +158,13 @@ export const listWorkflows = async (serverId: string): Promise<ServerWorkflowFil
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Failed to list workflows: ${response.status} ${errorText}`);
+      throw new Error(t('common.error.listWorkflowsHttp', { status: response.status, detail: errorText }));
     }
 
     const data: ListWorkflowsResponse = await response.json();
 
     if (data.status !== 'success') {
-      throw new Error('Failed to list workflows: Server reported an error');
+      throw new Error(t('common.error.listWorkflowsFailed'));
     }
 
     return data.workflows;
@@ -193,7 +194,7 @@ export const getAndConvertWorkflow = async (serverId: string, filename: string):
   try {
     const server = useServersStore.getState().servers.find((s) => s.id === serverId);
     if (!server) {
-      throw new Error('Server not found');
+      throw new Error(t('common.error.serverNotFound'));
     }
 
     const params = new URLSearchParams();
@@ -235,7 +236,7 @@ export const getAndConvertWorkflow = async (serverId: string, filename: string):
     }
     // Assuming the actual converted workflow is nested under data.workflow
     if (!data.data || typeof data.data.workflow === 'undefined') {
-      throw new Error('Converted workflow data is missing in the response');
+      throw new Error(t('common.error.workflowDataMissing'));
     }
 
     return data.data.workflow;

@@ -3,6 +3,7 @@ import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { showToast } from '@/utils/toast';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -11,13 +12,13 @@ import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
 const RESOLUTION_OPTIONS = [
-  { label: '1024x1024', width: 1024, height: 1024 },
-  { label: '768x1024', width: 768, height: 1024 },
-  { label: '512x512', width: 512, height: 512 },
-  { label: 'Custom' },
+  { value: '1024x1024', width: 1024, height: 1024 },
+  { value: '768x1024', width: 768, height: 1024 },
+  { value: '512x512', width: 512, height: 512 },
+  { value: 'custom' },
 ] as const;
 
-type ResolutionOption = (typeof RESOLUTION_OPTIONS)[number]['label'];
+type ResolutionOption = (typeof RESOLUTION_OPTIONS)[number]['value'];
 
 interface EmptySD3LatentImageProps {
   node: Node;
@@ -26,6 +27,7 @@ interface EmptySD3LatentImageProps {
 }
 
 export default function EmptySD3LatentImage({ node, serverId, workflowId }: EmptySD3LatentImageProps) {
+  const { t } = useTranslation();
   const insects = useSafeAreaInsets();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const isWidthLinked = Array.isArray(node.inputs.width);
@@ -40,7 +42,7 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
     return (
       RESOLUTION_OPTIONS.find(
         (option) => 'width' in option && option.width === dimensions.width && option.height === dimensions.height,
-      )?.label ?? 'Custom'
+      )?.value ?? 'custom'
     );
   });
 
@@ -50,12 +52,15 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
     updateNodeInput(workflowId, node.id, 'height', Number(dimensions.height));
   }, [dimensions, hasLinkedDimensions, workflowId, node.id, updateNodeInput]);
 
-  const handleResolutionChange = (value: ResolutionOption) => {
-    setSelectedResolution(value);
-    if (value === 'Custom') return;
+  /** The control deals in labels, the node input in ids. */
+  const resolutionLabel = (value: ResolutionOption) => (value === 'custom' ? t('nodes.common.custom') : value);
 
-    const selectedOption = RESOLUTION_OPTIONS.find((option) => option.label === value);
-    if (!selectedOption || !('width' in selectedOption) || !('height' in selectedOption)) return;
+  const handleResolutionChange = (label: string) => {
+    const selectedOption = RESOLUTION_OPTIONS.find((option) => resolutionLabel(option.value) === label);
+    if (!selectedOption) return;
+
+    setSelectedResolution(selectedOption.value);
+    if (!('width' in selectedOption) || !('height' in selectedOption)) return;
 
     setDimensions({
       width: selectedOption.width,
@@ -65,33 +70,31 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
 
   return (
     <BaseNode node={node}>
-      <SubItem title="Resolution">
+      <SubItem title={t('nodes.fields.resolution')}>
         {hasLinkedDimensions ? (
           <Text size="sm" className="text-typography-500">
-            Width and height are linked from another node. Edit the source node to change final image size.
+            {t('nodes.latent.linkedDimensions')}
           </Text>
         ) : (
           <View className="flex-col gap-2">
             <SegmentedControl
-              options={RESOLUTION_OPTIONS.map((option) => option.label)}
-              value={selectedResolution}
-              onChange={(value) => {
-                handleResolutionChange(value as ResolutionOption);
-              }}
+              options={RESOLUTION_OPTIONS.map((option) => resolutionLabel(option.value))}
+              value={resolutionLabel(selectedResolution)}
+              onChange={handleResolutionChange}
             />
             <View className="flex-row items-center gap-2">
               <View className="flex-1 flex-col gap-2">
                 <Text size="xs" allowFontScaling={false} className="pl-1 font-medium text-typography-950">
-                  Width
+                  {t('nodes.fields.width')}
                 </Text>
                 <Input
                   className="flex-1 rounded-md border-0 bg-background-50"
                   variant="outline"
                   size="sm"
-                  isDisabled={selectedResolution !== 'Custom'}
+                  isDisabled={selectedResolution !== 'custom'}
                 >
                   <InputField
-                    placeholder="Width"
+                    placeholder={t('nodes.fields.width')}
                     keyboardType="numeric"
                     value={dimensions.width.toString()}
                     onChangeText={(text) => {
@@ -104,8 +107,8 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
                       if (dimensions.width < 16 || dimensions.width > 10240) {
                         setDimensions((prev) => ({ ...prev, width: 1024 }));
                         showToast.error(
-                          'Invalid width',
-                          `Please enter a valid integer number between 16 and 10240`,
+                          t('nodes.latent.invalidWidth'),
+                          t('nodes.latent.invalidDimension'),
                           insects.top,
                         );
                       }
@@ -116,16 +119,16 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
               <Text className="font-medium">×</Text>
               <View className="flex-1 flex-col gap-2">
                 <Text size="xs" allowFontScaling={false} className="pl-1 font-medium text-typography-950">
-                  Height
+                  {t('nodes.fields.height')}
                 </Text>
                 <Input
                   className="flex-1 rounded-md border-0 bg-background-50"
                   variant="outline"
                   size="sm"
-                  isDisabled={selectedResolution !== 'Custom'}
+                  isDisabled={selectedResolution !== 'custom'}
                 >
                   <InputField
-                    placeholder="Height"
+                    placeholder={t('nodes.fields.height')}
                     keyboardType="numeric"
                     value={dimensions.height.toString()}
                     onChangeText={(text) => {
@@ -138,8 +141,8 @@ export default function EmptySD3LatentImage({ node, serverId, workflowId }: Empt
                       if (dimensions.height < 16 || dimensions.height > 10240) {
                         setDimensions((prev) => ({ ...prev, height: 1024 }));
                         showToast.error(
-                          'Invalid height',
-                          `Please enter a valid integer number between 16 and 10240`,
+                          t('nodes.latent.invalidHeight'),
+                          t('nodes.latent.invalidDimension'),
                           insects.top,
                         );
                       }

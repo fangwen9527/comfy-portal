@@ -3,6 +3,7 @@ import { NumberInput } from '@/components/self-ui/number-input';
 import { SegmentedControl } from '@/components/self-ui/segmented-control';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -21,10 +22,18 @@ const upscaleMethods = [
 ];
 
 export default function ImageScale({ node, serverId, workflowId }: ImageScaleNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
+
+  const cropOptions = [
+    { value: 'disabled', label: t('nodes.crop.disabled') },
+    { value: 'center', label: t('nodes.crop.center') },
+  ];
+  const selectedCrop = cropOptions.find((option) => option.value === node.inputs.crop);
+
   return (
     <BaseNode node={node}>
-      <SubItem title="upscale_method" node={node} dependencies={['upscale_method']}>
+      <SubItem title={t('nodes.fields.upscaleMethod')} node={node} dependencies={['upscale_method']}>
         <OptionSelector
           options={upscaleMethods}
           value={node.inputs.upscale_method}
@@ -33,7 +42,7 @@ export default function ImageScale({ node, serverId, workflowId }: ImageScaleNod
           }}
         />
       </SubItem>
-      <SubItem title="width" node={node} dependencies={['width']}>
+      <SubItem title={t('nodes.fields.width')} node={node} dependencies={['width']}>
         <NumberInput
           value={node.inputs.width}
           onChange={(value) => {
@@ -44,7 +53,7 @@ export default function ImageScale({ node, serverId, workflowId }: ImageScaleNod
           step={1}
         />
       </SubItem>
-      <SubItem title="height" node={node} dependencies={['height']}>
+      <SubItem title={t('nodes.fields.height')} node={node} dependencies={['height']}>
         <NumberInput
           value={node.inputs.height}
           onChange={(value) => {
@@ -55,12 +64,15 @@ export default function ImageScale({ node, serverId, workflowId }: ImageScaleNod
           step={1}
         />
       </SubItem>
-      <SubItem title="crop" node={node} dependencies={['crop']}>
+      <SubItem title={t('nodes.fields.crop')} node={node} dependencies={['crop']}>
         <SegmentedControl
-          options={['disabled', 'center']}
-          value={node.inputs.crop}
-          onChange={(value) => {
-            updateNodeInput(workflowId, node.id, 'crop', value);
+          options={cropOptions.map((option) => option.label)}
+          value={selectedCrop?.label ?? ''}
+          onChange={(label) => {
+            const next = cropOptions.find((option) => option.label === label);
+            if (next) {
+              updateNodeInput(workflowId, node.id, 'crop', next.value);
+            }
           }}
         />
       </SubItem>

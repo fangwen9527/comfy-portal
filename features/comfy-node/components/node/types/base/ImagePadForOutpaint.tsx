@@ -1,6 +1,7 @@
 import { NumberInput } from '@/components/self-ui/number-input';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -11,10 +12,11 @@ interface ImagePadForOutpaintNodeProps {
 }
 
 export default function ImagePadForOutpaint({ node, serverId, workflowId }: ImagePadForOutpaintNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="left" node={node} dependencies={['left']}>
+      <SubItem title={t('nodes.fields.left')} node={node} dependencies={['left']}>
         <NumberInput
           value={node.inputs.left}
           onChange={(value) => {
@@ -25,7 +27,7 @@ export default function ImagePadForOutpaint({ node, serverId, workflowId }: Imag
           maxValue={16384}
         />
       </SubItem>
-      <SubItem title="top" node={node} dependencies={['top']}>
+      <SubItem title={t('nodes.fields.top')} node={node} dependencies={['top']}>
         <NumberInput
           value={node.inputs.top}
           onChange={(value) => {
@@ -36,7 +38,7 @@ export default function ImagePadForOutpaint({ node, serverId, workflowId }: Imag
           maxValue={16384}
         />
       </SubItem>
-      <SubItem title="right" node={node} dependencies={['right']}>
+      <SubItem title={t('nodes.fields.right')} node={node} dependencies={['right']}>
         <NumberInput
           value={node.inputs.right}
           onChange={(value) => {
@@ -47,7 +49,7 @@ export default function ImagePadForOutpaint({ node, serverId, workflowId }: Imag
           maxValue={16384}
         />
       </SubItem>
-      <SubItem title="bottom" node={node} dependencies={['bottom']}>
+      <SubItem title={t('nodes.fields.bottom')} node={node} dependencies={['bottom']}>
         <NumberInput
           value={node.inputs.bottom}
           onChange={(value) => {
@@ -58,7 +60,7 @@ export default function ImagePadForOutpaint({ node, serverId, workflowId }: Imag
           maxValue={16384}
         />
       </SubItem>
-      <SubItem title="feathering" node={node} dependencies={['feathering']}>
+      <SubItem title={t('nodes.fields.feathering')} node={node} dependencies={['feathering']}>
         <NumberInput
           value={node.inputs.feathering}
           onChange={(value) => {

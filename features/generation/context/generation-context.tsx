@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useServersStore } from '@/features/server/stores/server-store';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { t } from '@/i18n';
 import { GenerationAbortedError, PromptRejectedError, QueueResponse } from '@/services/comfy-client';
 import { showToast } from '@/utils/toast';
 import { generateUUID } from '@/utils/uuid';
@@ -264,7 +265,11 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
     async (workflow: Record<string, Node>, workflowId: string, serverId: string) => {
       const client = attachClient(serverId);
       if (!client) {
-        showToast.error('Error', 'Server not found', insets.top + 8);
+        showToast.error(
+          t('generation.toast.serverNotFound.title'),
+          t('generation.toast.serverNotFound.message'),
+          insets.top + 8,
+        );
         return;
       }
 
@@ -368,7 +373,11 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
         // null means the run isn't committed yet or another pass owns it —
         // reconciliation will finish the job, so don't report failure.
         if (savedPaths && savedPaths.length === 0) {
-          showToast.error('Generation Failed', 'No media were generated.', insets.top + 8);
+          showToast.error(
+            t('generation.toast.generationFailed'),
+            t('generation.toast.noMediaGenerated'),
+            insets.top + 8,
+          );
         }
 
         // Call onPost hooks
@@ -382,8 +391,8 @@ export function GenerationProvider({ children }: { children: React.ReactNode }) 
         if (!(error instanceof GenerationAbortedError)) {
           console.error('Generation error:', error);
           showToast.error(
-            'Generation Failed',
-            error instanceof Error ? error.message : 'An unexpected error occurred.',
+            t('generation.toast.generationFailed'),
+            error instanceof Error ? error.message : t('generation.toast.unexpectedError'),
             insets.top + 8,
           );
         }

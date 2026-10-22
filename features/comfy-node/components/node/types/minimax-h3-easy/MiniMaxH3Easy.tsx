@@ -11,6 +11,7 @@ import {
 } from '@/features/ai-assistant/components/prompt-editor-modal';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { Maximize2 } from 'lucide-react-native';
 import { useCallback, useRef } from 'react';
 import { View } from 'react-native';
@@ -25,6 +26,7 @@ import {
   FPS_MIN,
   KEYFRAME_ROLE_OPTIONS,
   MODE_OPTIONS,
+  type Option,
   REFERENCE_MENTION_OPTIONS,
   REF_IMAGE_SIZE_OPTIONS,
   RESOLUTION_OPTIONS,
@@ -49,8 +51,17 @@ interface MiniMaxH3EasyProps {
  * resolution (other presets derive dimensions from the aspect ratio).
  */
 export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const promptEditorRef = useRef<PromptEditorModalRef>(null);
+
+  /** The option tables carry i18n keys so they stay locale-free. */
+  const localizedOptions = (options: Option[], value: unknown) =>
+    withCurrentValue(options, value).map((option) => ({
+      value: option.value,
+      label: option.labelKey ? t(option.labelKey) : option.value,
+      description: option.descriptionKey ? t(option.descriptionKey) : undefined,
+    }));
 
   const setInput = useCallback(
     (key: string, value: unknown) => updateNodeInput(workflowId, node.id, key, value),
@@ -61,9 +72,9 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
     promptEditorRef.current?.present({
       initialValue: node.inputs?.prompt || '',
       onSave: (value) => setInput('prompt', value),
-      title: 'Edit Prompt',
+      title: t('nodes.common.editPrompt'),
     });
-  }, [node.inputs?.prompt, setInput]);
+  }, [node.inputs?.prompt, setInput, t]);
 
   const isAdvanced = node.inputs.advanced === true;
   const isCustomResolution = node.inputs.resolution === 'custom';
@@ -71,17 +82,17 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
 
   return (
     <BaseNode node={node}>
-      <SubItem title="Mode" node={node} dependencies={['mode']}>
+      <SubItem title={t('nodes.minimax.mode')} node={node} dependencies={['mode']}>
         <OptionSelector
           value={node.inputs.mode ?? 'image'}
           onChange={(value) => setInput('mode', value)}
-          options={withCurrentValue(MODE_OPTIONS, node.inputs.mode)}
-          title="Mode"
+          options={localizedOptions(MODE_OPTIONS, node.inputs.mode)}
+          title={t('nodes.minimax.mode')}
         />
       </SubItem>
 
       <SubItem
-        title="Prompt"
+        title={t('nodes.fields.prompt')}
         rightComponent={
           <View className="flex-row items-center gap-2">
             <Pressable onPress={handleOpenEditor} className="p-1">
@@ -100,7 +111,7 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
           className="w-full rounded-md border-0 bg-background-50"
         >
           <TextareaInput
-            placeholder="Describe the video..."
+            placeholder={t('nodes.minimax.promptPlaceholder')}
             value={node.inputs?.prompt || ''}
             onChangeText={(text) => setInput('prompt', text)}
             className="text-sm"
@@ -108,29 +119,29 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
         </Textarea>
       </SubItem>
 
-      <SubItem title="Resolution" node={node} dependencies={['resolution']}>
+      <SubItem title={t('nodes.fields.resolution')} node={node} dependencies={['resolution']}>
         <OptionSelector
           value={node.inputs.resolution ?? '480P'}
           onChange={(value) => setInput('resolution', value)}
-          options={withCurrentValue(RESOLUTION_OPTIONS, node.inputs.resolution)}
-          title="Resolution"
+          options={localizedOptions(RESOLUTION_OPTIONS, node.inputs.resolution)}
+          title={t('nodes.fields.resolution')}
         />
       </SubItem>
 
       {!isCustomResolution && (
-        <SubItem title="Aspect Ratio" node={node} dependencies={['aspect_ratio']}>
+        <SubItem title={t('nodes.minimax.aspectRatio')} node={node} dependencies={['aspect_ratio']}>
           <OptionSelector
             value={node.inputs.aspect_ratio ?? '16:9'}
             onChange={(value) => setInput('aspect_ratio', value)}
-            options={withCurrentValue(ASPECT_RATIO_OPTIONS, node.inputs.aspect_ratio)}
-            title="Aspect Ratio"
+            options={localizedOptions(ASPECT_RATIO_OPTIONS, node.inputs.aspect_ratio)}
+            title={t('nodes.minimax.aspectRatio')}
           />
         </SubItem>
       )}
 
       {isCustomResolution && (
         <>
-          <SubItem title="Width" node={node} dependencies={['width']}>
+          <SubItem title={t('nodes.fields.width')} node={node} dependencies={['width']}>
             <NumberInput
               value={node.inputs.width}
               onChange={(value) => setInput('width', Number(value))}
@@ -142,7 +153,7 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
               space={12}
             />
           </SubItem>
-          <SubItem title="Height" node={node} dependencies={['height']}>
+          <SubItem title={t('nodes.fields.height')} node={node} dependencies={['height']}>
             <NumberInput
               value={node.inputs.height}
               onChange={(value) => setInput('height', Number(value))}
@@ -157,7 +168,7 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
         </>
       )}
 
-      <SubItem title="Duration (seconds)" node={node} dependencies={['seconds']}>
+      <SubItem title={t('nodes.minimax.duration')} node={node} dependencies={['seconds']}>
         <NumberSlider
           value={node.inputs.seconds}
           minValue={SECONDS_MIN}
@@ -169,17 +180,17 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
         />
       </SubItem>
 
-      <SubItem title="Scene Guide" node={node} dependencies={['prompt_optimizer_scene_guide']}>
+      <SubItem title={t('nodes.minimax.sceneGuide')} node={node} dependencies={['prompt_optimizer_scene_guide']}>
         <OptionSelector
           value={node.inputs.prompt_optimizer_scene_guide ?? 'none'}
           onChange={(value) => setInput('prompt_optimizer_scene_guide', value)}
-          options={withCurrentValue(SCENE_GUIDE_OPTIONS, node.inputs.prompt_optimizer_scene_guide)}
-          title="Scene Guide"
+          options={localizedOptions(SCENE_GUIDE_OPTIONS, node.inputs.prompt_optimizer_scene_guide)}
+          title={t('nodes.minimax.sceneGuide')}
         />
       </SubItem>
 
       <SubItem
-        title="Prompt optimizer"
+        title={t('nodes.minimax.promptOptimizer')}
         rightComponent={
           <Switch
             size="sm"
@@ -190,7 +201,7 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
       />
 
       <SubItem
-        title="Advanced"
+        title={t('nodes.minimax.advanced')}
         rightComponent={
           <Switch
             size="sm"
@@ -202,7 +213,7 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
 
       {isAdvanced && (
         <>
-          <SubItem title="FPS" node={node} dependencies={['fps']}>
+          <SubItem title={t('nodes.minimax.fps')} node={node} dependencies={['fps']}>
             <NumberSlider
               value={node.inputs.fps}
               minValue={FPS_MIN}
@@ -215,32 +226,32 @@ export default function MiniMaxH3Easy({ node, workflowId }: MiniMaxH3EasyProps) 
           </SubItem>
 
           {!isReferenceMode && (
-            <SubItem title="Single image is" node={node} dependencies={['keyframe_role']}>
+            <SubItem title={t('nodes.minimax.singleImageIs')} node={node} dependencies={['keyframe_role']}>
               <OptionSelector
                 value={node.inputs.keyframe_role ?? 'first'}
                 onChange={(value) => setInput('keyframe_role', value)}
-                options={withCurrentValue(KEYFRAME_ROLE_OPTIONS, node.inputs.keyframe_role)}
-                title="Single image is"
+                options={localizedOptions(KEYFRAME_ROLE_OPTIONS, node.inputs.keyframe_role)}
+                title={t('nodes.minimax.singleImageIs')}
               />
             </SubItem>
           )}
 
           {isReferenceMode && (
             <>
-              <SubItem title="Reference image size" node={node} dependencies={['ref_image_size']}>
+              <SubItem title={t('nodes.minimax.referenceImageSize')} node={node} dependencies={['ref_image_size']}>
                 <OptionSelector
                   value={node.inputs.ref_image_size ?? '1k'}
                   onChange={(value) => setInput('ref_image_size', value)}
-                  options={withCurrentValue(REF_IMAGE_SIZE_OPTIONS, node.inputs.ref_image_size)}
-                  title="Reference image size"
+                  options={localizedOptions(REF_IMAGE_SIZE_OPTIONS, node.inputs.ref_image_size)}
+                  title={t('nodes.minimax.referenceImageSize')}
                 />
               </SubItem>
-              <SubItem title="Mention media" node={node} dependencies={['reference_mention_mode']}>
+              <SubItem title={t('nodes.minimax.mentionMedia')} node={node} dependencies={['reference_mention_mode']}>
                 <OptionSelector
                   value={node.inputs.reference_mention_mode ?? 'index'}
                   onChange={(value) => setInput('reference_mention_mode', value)}
-                  options={withCurrentValue(REFERENCE_MENTION_OPTIONS, node.inputs.reference_mention_mode)}
-                  title="Mention media"
+                  options={localizedOptions(REFERENCE_MENTION_OPTIONS, node.inputs.reference_mention_mode)}
+                  title={t('nodes.minimax.mentionMedia')}
                 />
               </SubItem>
             </>

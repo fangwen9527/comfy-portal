@@ -1,6 +1,7 @@
 import { HStack } from '@/components/ui/hstack';
 import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
+import { useTranslation } from '@/i18n';
 import { Bot, SlidersHorizontal } from 'lucide-react-native';
 import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
@@ -25,6 +26,7 @@ const TOGGLE_THUMB_HEIGHT = TOGGLE_CONTAINER_HEIGHT - TOGGLE_HORIZONTAL_PADDING 
 const TOGGLE_ANIMATION_STEP = TOGGLE_THUMB_WIDTH;
 
 export const SheetTabToggle = memo(({ index, onChange }: SheetTabToggleProps) => {
+  const { t } = useTranslation();
   const togglePosition = useSharedValue(index === 0 ? 0 : 1);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export const SheetTabToggle = memo(({ index, onChange }: SheetTabToggleProps) =>
       <HStack className="h-8">
         <Pressable
           onPress={() => onChange(0)}
-          accessibilityLabel="Switch to nodes"
+          accessibilityLabel={t('common.tabToggle.switchToNodes')}
           className="h-8 items-center justify-center rounded-full"
           style={{ width: TOGGLE_THUMB_WIDTH }}
         >
@@ -58,7 +60,7 @@ export const SheetTabToggle = memo(({ index, onChange }: SheetTabToggleProps) =>
         </Pressable>
         <Pressable
           onPress={() => onChange(1)}
-          accessibilityLabel="Switch to AI assistant"
+          accessibilityLabel={t('common.tabToggle.switchToAssistant')}
           className="h-8 items-center justify-center rounded-full"
           style={{ width: TOGGLE_THUMB_WIDTH }}
         >

@@ -3,6 +3,7 @@ import { Icon } from '@/components/ui/icon';
 import { Input, InputField } from '@/components/ui/input';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
+import { useTranslation } from '@/i18n';
 import { generateUUID } from '@/utils/uuid';
 import { ArrowDown, ArrowUp, Check, Minus, Plus, Trash2 } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -93,6 +94,7 @@ function TagItem({ tag, strength, selected, onSelect }: TagItemProps) {
 }
 
 export function TagMode({ value, onChange }: TagModeProps) {
+  const { t } = useTranslation();
   const [tags, setTags] = useState<Tag[]>(() => parsePromptToTags(value));
   const [newTag, setNewTag] = useState('');
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
@@ -234,7 +236,7 @@ export function TagMode({ value, onChange }: TagModeProps) {
 
   return (
     <View className="flex-1">
-      <Text className="mb-3 text-sm font-medium text-typography-600">Tags</Text>
+      <Text className="mb-3 text-sm font-medium text-typography-600">{t('assistant.promptEditor.tagsLabel')}</Text>
 
       <MotiView
         from={{ opacity: 0, translateX: -20 }}
@@ -243,7 +245,7 @@ export function TagMode({ value, onChange }: TagModeProps) {
       >
         <View className="mb-4 flex-row flex-wrap gap-2">
           {tags.length === 0 ? (
-            <Text className="text-sm text-typography-400">No tags yet. Add one below.</Text>
+            <Text className="text-sm text-typography-400">{t('assistant.promptEditor.noTags')}</Text>
           ) : (
             tags.map((tag) => (
               <TagItem
@@ -294,7 +296,7 @@ export function TagMode({ value, onChange }: TagModeProps) {
             onPress={handleIncreaseStrength}
           >
             <ButtonIcon as={Plus} />
-            <ButtonText>Stronger</ButtonText>
+            <ButtonText>{t('assistant.promptEditor.stronger')}</ButtonText>
           </Button>
           <Button
             size="sm"
@@ -305,7 +307,7 @@ export function TagMode({ value, onChange }: TagModeProps) {
             onPress={handleDecreaseStrength}
           >
             <ButtonIcon as={Minus} />
-            <ButtonText>Weaker</ButtonText>
+            <ButtonText>{t('assistant.promptEditor.weaker')}</ButtonText>
           </Button>
           <TouchableOpacity
             className={`rounded-md border-[0.5px] border-error-500 p-2 ${
@@ -326,7 +328,11 @@ export function TagMode({ value, onChange }: TagModeProps) {
       >
         <Input className="flex-1 rounded-md border-0 bg-background-100">
           <InputField
-            placeholder={selectedTagId ? 'Edit tag' : 'Add a tag'}
+            placeholder={
+              selectedTagId
+                ? t('assistant.promptEditor.editTagPlaceholder')
+                : t('assistant.promptEditor.addTagPlaceholder')
+            }
             value={newTag}
             onChangeText={setNewTag}
             onSubmitEditing={handleAddTag}
@@ -339,7 +345,7 @@ export function TagMode({ value, onChange }: TagModeProps) {
         >
           <Button size="sm" variant="solid" action="primary" onPress={handleAddTag} className="w-full">
             <ButtonIcon as={selectedTagId ? Check : Plus} />
-            <ButtonText>{selectedTagId ? 'Confirm' : 'Add'}</ButtonText>
+            <ButtonText>{selectedTagId ? t('common.action.confirm') : t('assistant.promptEditor.add')}</ButtonText>
           </Button>
         </MotiView>
       </Animated.View>

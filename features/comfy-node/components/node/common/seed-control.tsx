@@ -5,6 +5,7 @@ import { Text } from '@/components/ui/text';
 import { useGenerationActions } from '@/features/generation/context/generation-context';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import * as Crypto from 'expo-crypto';
 import { Dice2, Info } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
@@ -30,7 +31,7 @@ interface SeedControlProps {
   workflowId: string;
   /** Sampler nodes call it `seed`; noise nodes call it `noise_seed`. */
   inputKey: 'seed' | 'noise_seed';
-  title?: string;
+  title: string;
 }
 
 /**
@@ -40,7 +41,8 @@ interface SeedControlProps {
  * in local state would display as "Fixed" while the generation quietly used
  * whatever value was last persisted.
  */
-export default function SeedControl({ node, workflowId, inputKey, title = 'Seed' }: SeedControlProps) {
+export default function SeedControl({ node, workflowId, inputKey, title }: SeedControlProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const { registerNodeHooks, unregisterNodeHooks } = useGenerationActions();
 
@@ -99,7 +101,7 @@ export default function SeedControl({ node, workflowId, inputKey, title = 'Seed'
   };
 
   const handleModeChange = (value: string) => {
-    const isRandom = value === 'Random';
+    const isRandom = value === t('nodes.seed.random');
     setRandomSeed(isRandom);
     // Switching to Fixed pins whatever is on screen, so the displayed seed is
     // the one that actually runs.
@@ -109,8 +111,8 @@ export default function SeedControl({ node, workflowId, inputKey, title = 'Seed'
   return (
     <SubItem title={title} node={node} dependencies={[inputKey]}>
       <SegmentedControl
-        options={['Random', 'Fixed']}
-        value={randomSeed ? 'Random' : 'Fixed'}
+        options={[t('nodes.seed.random'), t('nodes.seed.fixed')]}
+        value={randomSeed ? t('nodes.seed.random') : t('nodes.seed.fixed')}
         onChange={handleModeChange}
       />
       <View className="mt-2 flex-col gap-1">
@@ -124,7 +126,7 @@ export default function SeedControl({ node, workflowId, inputKey, title = 'Seed'
             className="h-10 flex-1 rounded-lg border-0 bg-background-50"
           >
             <InputField
-              placeholder="Custom Seed"
+              placeholder={t('nodes.seed.placeholder')}
               value={draft}
               onChangeText={(text) => setDraft(text.replace(/[^0-9]/g, ''))}
               onBlur={commitDraft}
@@ -143,7 +145,7 @@ export default function SeedControl({ node, workflowId, inputKey, title = 'Seed'
         <View className="flex-row items-start gap-2">
           <Icon as={Info} size="xs" className="mt-[1px] text-typography-500" />
           <Text size="sm" className="flex-1 text-xs text-typography-500">
-            Using the same seed will not trigger image generation again.
+            {t('nodes.seed.hint')}
           </Text>
         </View>
       </View>

@@ -1,6 +1,7 @@
 import { ModelSelector } from '@/components/common/selectors/model';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -17,11 +18,12 @@ interface MiniMaxH3EasyLoaderProps {
  * them), which shows up here as whatever "none" entry the server offers.
  */
 export default function MiniMaxH3EasyLoader({ node, serverId, workflowId }: MiniMaxH3EasyLoaderProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   return (
     <BaseNode node={node}>
-      <SubItem title="FL2VA Transformer" node={node} dependencies={['fl2va_model']}>
+      <SubItem title={t('nodes.minimax.loader.fl2va')} node={node} dependencies={['fl2va_model']}>
         <ModelSelector
           value={node.inputs.fl2va_model}
           onChange={(model) => updateNodeInput(workflowId, node.id, 'fl2va_model', model)}
@@ -32,7 +34,7 @@ export default function MiniMaxH3EasyLoader({ node, serverId, workflowId }: Mini
         />
       </SubItem>
 
-      <SubItem title="Ref2VA Transformer" node={node} dependencies={['ref2va_model']}>
+      <SubItem title={t('nodes.minimax.loader.ref2va')} node={node} dependencies={['ref2va_model']}>
         <ModelSelector
           value={node.inputs.ref2va_model}
           onChange={(model) => updateNodeInput(workflowId, node.id, 'ref2va_model', model)}
@@ -43,7 +45,7 @@ export default function MiniMaxH3EasyLoader({ node, serverId, workflowId }: Mini
         />
       </SubItem>
 
-      <SubItem title="Text Encoder" node={node} dependencies={['text_encoder']}>
+      <SubItem title={t('nodes.minimax.loader.textEncoder')} node={node} dependencies={['text_encoder']}>
         <ModelSelector
           value={node.inputs.text_encoder}
           onChange={(model) => updateNodeInput(workflowId, node.id, 'text_encoder', model)}
@@ -54,7 +56,7 @@ export default function MiniMaxH3EasyLoader({ node, serverId, workflowId }: Mini
         />
       </SubItem>
 
-      <SubItem title="Video VAE" node={node} dependencies={['video_vae']}>
+      <SubItem title={t('nodes.minimax.loader.videoVae')} node={node} dependencies={['video_vae']}>
         <ModelSelector
           value={node.inputs.video_vae}
           onChange={(model) => updateNodeInput(workflowId, node.id, 'video_vae', model)}
@@ -65,7 +67,7 @@ export default function MiniMaxH3EasyLoader({ node, serverId, workflowId }: Mini
         />
       </SubItem>
 
-      <SubItem title="Audio VAE" node={node} dependencies={['audio_vae']}>
+      <SubItem title={t('nodes.minimax.loader.audioVae')} node={node} dependencies={['audio_vae']}>
         <ModelSelector
           value={node.inputs.audio_vae}
           onChange={(model) => updateNodeInput(workflowId, node.id, 'audio_vae', model)}

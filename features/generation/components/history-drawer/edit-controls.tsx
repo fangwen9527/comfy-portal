@@ -4,6 +4,7 @@ import { HStack } from '@/components/ui/hstack';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useTranslation } from '@/i18n';
 import { Check, CheckSquare, Download, MinusSquare, PlusSquare, Share, Trash2 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React from 'react';
@@ -13,49 +14,53 @@ interface SelectButtonProps {
   onPress: () => void;
 }
 
-export const SelectButton = React.memo(({ isSelectionMode, onPress }: SelectButtonProps) => (
-  <Button
-    variant="outline"
-    size="sm"
-    onPress={onPress}
-    className="h-8 w-[88px] items-center justify-center overflow-hidden rounded-lg border-outline-50 bg-background-0"
-  >
-    <MotiView
-      animate={{
-        translateY: isSelectionMode ? 0 : -20,
-        opacity: isSelectionMode ? 1 : 0,
-      }}
-      transition={{
-        type: 'timing',
-        duration: 150,
-        delay: isSelectionMode ? 0 : 50,
-      }}
-      className="absolute"
+export const SelectButton = React.memo(({ isSelectionMode, onPress }: SelectButtonProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onPress={onPress}
+      className="h-8 w-[88px] items-center justify-center overflow-hidden rounded-lg border-outline-50 bg-background-0"
     >
-      <HStack space="xs" className="items-center">
-        <Icon as={Check} size="sm" className="text-primary-500" />
-        <Text className="text-sm font-medium text-primary-500">Done</Text>
-      </HStack>
-    </MotiView>
-    <MotiView
-      animate={{
-        translateY: isSelectionMode ? 20 : 0,
-        opacity: isSelectionMode ? 0 : 1,
-      }}
-      transition={{
-        type: 'timing',
-        duration: 150,
-        delay: isSelectionMode ? 50 : 0,
-      }}
-      className="absolute"
-    >
-      <HStack space="xs" className="items-center">
-        <Icon as={CheckSquare} size="sm" className="text-primary-500" />
-        <Text className="text-sm font-medium text-primary-500">Select</Text>
-      </HStack>
-    </MotiView>
-  </Button>
-));
+      <MotiView
+        animate={{
+          translateY: isSelectionMode ? 0 : -20,
+          opacity: isSelectionMode ? 1 : 0,
+        }}
+        transition={{
+          type: 'timing',
+          duration: 150,
+          delay: isSelectionMode ? 0 : 50,
+        }}
+        className="absolute"
+      >
+        <HStack space="xs" className="items-center">
+          <Icon as={Check} size="sm" className="text-primary-500" />
+          <Text className="text-sm font-medium text-primary-500">{t('common.action.done')}</Text>
+        </HStack>
+      </MotiView>
+      <MotiView
+        animate={{
+          translateY: isSelectionMode ? 20 : 0,
+          opacity: isSelectionMode ? 0 : 1,
+        }}
+        transition={{
+          type: 'timing',
+          duration: 150,
+          delay: isSelectionMode ? 50 : 0,
+        }}
+        className="absolute"
+      >
+        <HStack space="xs" className="items-center">
+          <Icon as={CheckSquare} size="sm" className="text-primary-500" />
+          <Text className="text-sm font-medium text-primary-500">{t('generation.action.select')}</Text>
+        </HStack>
+      </MotiView>
+    </Button>
+  );
+});
 
 interface BottomPanelProps {
   isSelectionMode: boolean;
@@ -68,58 +73,66 @@ interface BottomPanelProps {
 }
 
 export const BottomPanel = React.memo(
-  ({ isSelectionMode, selectedMedia, mediaItems, onSelectAll, onDelete, onShare, onSave }: BottomPanelProps) => (
-    <BottomActionPanel isOpen={isSelectionMode}>
-      <VStack space="sm">
-        <Text className="text-sm text-background-400">{selectedMedia.length} selected</Text>
-        <Button
-          variant="outline"
-          size="lg"
-          onPress={onSelectAll}
-          className="h-12 w-full justify-start border-background-100 px-4"
-        >
-          <Icon
-            as={selectedMedia.length === mediaItems.length ? MinusSquare : PlusSquare}
-            size="sm"
-            className="mr-2 text-primary-500"
-          />
-          <Text className="text-sm text-primary-500">
-            {selectedMedia.length === mediaItems.length ? 'Deselect All' : 'Select All'}
+  ({ isSelectionMode, selectedMedia, mediaItems, onSelectAll, onDelete, onShare, onSave }: BottomPanelProps) => {
+    const { t } = useTranslation();
+
+    return (
+      <BottomActionPanel isOpen={isSelectionMode}>
+        <VStack space="sm">
+          <Text className="text-sm text-background-400">
+            {t('generation.selection.count', { count: selectedMedia.length })}
           </Text>
-        </Button>
-        <HStack space="sm">
           <Button
             variant="outline"
             size="lg"
-            onPress={onShare}
-            isDisabled={selectedMedia.length === 0}
-            className="h-12 flex-1 justify-start border-background-100 px-4"
+            onPress={onSelectAll}
+            className="h-12 w-full justify-start border-background-100 px-4"
           >
-            <Icon as={Share} size="sm" className="mr-2 text-primary-500" />
-            <Text className="text-sm text-primary-500">Share</Text>
+            <Icon
+              as={selectedMedia.length === mediaItems.length ? MinusSquare : PlusSquare}
+              size="sm"
+              className="mr-2 text-primary-500"
+            />
+            <Text className="text-sm text-primary-500">
+              {selectedMedia.length === mediaItems.length
+                ? t('generation.action.deselectAll')
+                : t('generation.action.selectAll')}
+            </Text>
           </Button>
+          <HStack space="sm">
+            <Button
+              variant="outline"
+              size="lg"
+              onPress={onShare}
+              isDisabled={selectedMedia.length === 0}
+              className="h-12 flex-1 justify-start border-background-100 px-4"
+            >
+              <Icon as={Share} size="sm" className="mr-2 text-primary-500" />
+              <Text className="text-sm text-primary-500">{t('generation.action.share')}</Text>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onPress={onSave}
+              isDisabled={selectedMedia.length === 0}
+              className="h-12 flex-1 justify-start border-background-100 px-4"
+            >
+              <Icon as={Download} size="sm" className="mr-2 text-primary-500" />
+              <Text className="text-sm text-primary-500">{t('common.action.save')}</Text>
+            </Button>
+          </HStack>
           <Button
             variant="outline"
             size="lg"
-            onPress={onSave}
+            onPress={onDelete}
             isDisabled={selectedMedia.length === 0}
-            className="h-12 flex-1 justify-start border-background-100 px-4"
+            className="h-12 w-full justify-start border-background-100 px-4"
           >
-            <Icon as={Download} size="sm" className="mr-2 text-primary-500" />
-            <Text className="text-sm text-primary-500">Save</Text>
+            <Icon as={Trash2} size="sm" className="mr-2 text-error-500" />
+            <Text className="text-sm text-error-500">{t('generation.action.deleteSelected')}</Text>
           </Button>
-        </HStack>
-        <Button
-          variant="outline"
-          size="lg"
-          onPress={onDelete}
-          isDisabled={selectedMedia.length === 0}
-          className="h-12 w-full justify-start border-background-100 px-4"
-        >
-          <Icon as={Trash2} size="sm" className="mr-2 text-error-500" />
-          <Text className="text-sm text-error-500">Delete Selected</Text>
-        </Button>
-      </VStack>
-    </BottomActionPanel>
-  ),
+        </VStack>
+      </BottomActionPanel>
+    );
+  },
 );

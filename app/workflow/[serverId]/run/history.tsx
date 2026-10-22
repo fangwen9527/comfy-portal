@@ -5,6 +5,7 @@ import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { ZoomableMedia } from '@/features/generation/components/media-preview/zoomable-media';
 import { MediaActions } from '@/features/generation/components/media-preview/media-actions';
+import { useTranslation } from '@/i18n';
 import { loadHistoryMedia } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
 import { File } from 'expo-file-system';
@@ -38,6 +39,7 @@ const listContentStyle = {
 };
 
 export default function HistoryGalleryPage() {
+  const { t } = useTranslation();
   const { serverId, workflowId } = useLocalSearchParams<{ serverId: string; workflowId: string }>();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -129,27 +131,31 @@ export default function HistoryGalleryPage() {
       setIsSelectionMode(false);
       setIsDeleteAlertOpen(false);
     } catch {
-      showToast.error('Delete Failed', 'Failed to delete media', insets.top + 8);
+      showToast.error(t('app.history.deleteFailedTitle'), t('app.history.deleteFailedDescription'), insets.top + 8);
     }
-  }, [selectedMedia, serverId, workflowId, insets.top]);
+  }, [selectedMedia, serverId, workflowId, insets.top, t]);
 
   const handleShare = useCallback(async () => {
     if (selectedMedia.size === 0) return;
     try {
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
-        showToast.error('Not available', 'Sharing is not supported on this device', insets.top + 8);
+        showToast.error(
+          t('app.history.shareUnavailableTitle'),
+          t('app.history.shareUnavailableDescription'),
+          insets.top + 8,
+        );
         return;
       }
       await Sharing.shareAsync(selectedMedia.values().next().value!);
     } catch { /* ignore */ }
-  }, [insets.top, selectedMedia]);
+  }, [insets.top, selectedMedia, t]);
 
   const handleSave = useCallback(async () => {
     if (selectedMedia.size === 0) return;
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== 'granted') {
-      showToast.error('Permission required', 'Please allow access to save media', insets.top + 8);
+      showToast.error(t('app.history.permissionTitle'), t('app.history.permissionDescription'), insets.top + 8);
       return;
     }
     let savedCount = 0;
@@ -158,13 +164,17 @@ export default function HistoryGalleryPage() {
         await MediaLibrary.saveToLibraryAsync(url);
         savedCount++;
       }
-      showToast.success('Saved', `Saved ${savedCount} item${savedCount > 1 ? 's' : ''} to Photos`, insets.top + 8);
+      showToast.success(
+        t('app.history.savedTitle'),
+        savedCount > 1 ? t('app.history.saved', { count: savedCount }) : t('app.history.savedOne'),
+        insets.top + 8,
+      );
       setIsSelectionMode(false);
       setSelectedMedia(new Set());
     } catch {
-      showToast.error('Save Failed', 'Failed to save some media', insets.top + 8);
+      showToast.error(t('app.history.saveFailedTitle'), t('app.history.saveFailedDescription'), insets.top + 8);
     }
-  }, [insets.top, selectedMedia]);
+  }, [insets.top, selectedMedia, t]);
 
   const handlePreviewScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -246,7 +256,7 @@ export default function HistoryGalleryPage() {
             className="ml-1 rounded-lg bg-primary-500"
             style={{ width: 60 }}
           >
-            <ButtonText className="text-xs font-semibold">Done</ButtonText>
+            <ButtonText className="text-xs font-semibold">{t('common.action.done')}</ButtonText>
           </Button>
         ) : (
           <Button
@@ -256,17 +266,17 @@ export default function HistoryGalleryPage() {
             className="ml-1 rounded-lg bg-background-100"
             style={{ width: 60, borderWidth: 1, borderColor: 'transparent' }}
           >
-            <ButtonText className="text-xs font-medium text-primary-400">Select</ButtonText>
+            <ButtonText className="text-xs font-medium text-primary-400">{t('app.history.select')}</ButtonText>
           </Button>
         )}
       </HStack>
     );
-  }, [isSelectionMode, hasSelection, handleShare, handleSave, exitSelectionMode]);
+  }, [isSelectionMode, hasSelection, handleShare, handleSave, exitSelectionMode, t]);
 
   return (
     <View className="flex-1 bg-background-0">
       <AppBar
-        title={isSelectionMode ? `${selectedMedia.size} selected` : 'History'}
+        title={isSelectionMode ? t('app.history.selectedCount', { count: selectedMedia.size }) : t('app.history.title')}
         titleSize="sm"
         rightElement={rightElement}
       />
@@ -396,11 +406,11 @@ export default function HistoryGalleryPage() {
         isOpen={isDeleteAlertOpen}
         onClose={() => setIsDeleteAlertOpen(false)}
         onConfirm={confirmDelete}
-        title={selectedMedia.size > 1 ? 'Delete Selected Media' : 'Delete Media'}
+        title={selectedMedia.size > 1 ? t('app.history.deleteSelectedTitle') : t('app.history.deleteTitle')}
         description={
           selectedMedia.size > 1
-            ? `Are you sure you want to delete ${selectedMedia.size} items? This action cannot be undone.`
-            : 'Are you sure you want to delete this item? This action cannot be undone.'
+            ? t('app.history.deleteSelectedDescription', { count: selectedMedia.size })
+            : t('app.history.deleteDescription')
         }
       />
     </View>

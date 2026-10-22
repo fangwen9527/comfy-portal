@@ -1,6 +1,7 @@
 import { SamplerSelector } from '@/components/common/selectors/sampler';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -11,10 +12,11 @@ interface KSamplerSelectProps {
 }
 
 export default function KSamplerSelect({ node, serverId, workflowId }: KSamplerSelectProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="sampler_name">
+      <SubItem title={t('nodes.fields.sampler')}>
         <SamplerSelector
           value={node.inputs.sampler_name}
           onChange={(value) => {

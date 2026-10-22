@@ -7,6 +7,7 @@ import {
 } from '@/features/ai-assistant/components/prompt-editor-modal';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { Maximize2 } from 'lucide-react-native';
 import { useCallback, useRef } from 'react';
 import BaseNode from '../../common/base-node';
@@ -22,6 +23,7 @@ export default function TextEncodeQwenImageEditPlus({
   node,
   workflowId,
 }: TextEncodeQwenImageEditPlusProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const promptEditorRef = useRef<PromptEditorModalRef>(null);
 
@@ -36,14 +38,14 @@ export default function TextEncodeQwenImageEditPlus({
     promptEditorRef.current?.present({
       initialValue: node.inputs?.prompt || '',
       onSave: handleTextChange,
-      title: 'Edit Prompt',
+      title: t('nodes.common.editPrompt'),
     });
-  }, [node.inputs?.prompt, handleTextChange]);
+  }, [node.inputs?.prompt, handleTextChange, t]);
 
   return (
     <BaseNode node={node}>
       <SubItem
-        title="Prompt"
+        title={t('nodes.fields.prompt')}
         node={node}
         dependencies={['prompt']}
         rightComponent={
@@ -53,7 +55,7 @@ export default function TextEncodeQwenImageEditPlus({
         }
       >
         <StyledTextarea
-          placeholder="Enter prompt here..."
+          placeholder={t('nodes.qwenImageEdit.placeholder')}
           value={node.inputs?.prompt || ''}
           onChangeText={handleTextChange}
         />

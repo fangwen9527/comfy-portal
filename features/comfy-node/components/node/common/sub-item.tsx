@@ -1,6 +1,7 @@
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { GitBranch } from 'lucide-react-native';
 import React, { ReactNode } from 'react';
 import { Linking, View } from 'react-native';
@@ -15,6 +16,8 @@ interface SubItemProps {
 }
 
 export default function SubItem({ title, children, className, rightComponent, node, dependencies }: SubItemProps) {
+  const { t } = useTranslation();
+
   if (node && dependencies) {
     const dependencyStatus = dependencies.map((dependency) => {
       const value = node.inputs[dependency];
@@ -48,11 +51,11 @@ export default function SubItem({ title, children, className, rightComponent, no
           {children && (
             <View>
               <Text size="sm" className="text-typography-500">
-                {missingDeps.length > 0 && <>The following inputs are missing: {missingDeps.join(', ')}.</>}
+                {missingDeps.length > 0 && t('nodes.common.missingInputs', { inputs: missingDeps.join(', ') })}
                 {missingDeps.length > 0 && linkedDeps.length > 0 && <>{'\n'}</>}
                 {linkedDeps.length > 0 && (
                   <>
-                    The following inputs are linked to other nodes:{' '}
+                    {t('nodes.common.linkedInputsPrefix')}
                     {linkedDeps.map((dep, index) => (
                       <React.Fragment key={dep}>
                         {index > 0 && ', '}
@@ -61,14 +64,13 @@ export default function SubItem({ title, children, className, rightComponent, no
                         </Text>
                       </React.Fragment>
                     ))}
-                    .
+                    {t('nodes.common.linkedInputsSuffix')}
                   </>
                 )}
                 {missingDeps.length > 0 && (
                   <>
                     {'\n\n'}
-                    Please ensure this workflow is configured correctly and it can be run through the web page of the
-                    ComfyUI server. If problem persists, consider reporting this issue to the developer.
+                    {t('nodes.common.workflowHint')}
                   </>
                 )}
               </Text>
@@ -83,7 +85,7 @@ export default function SubItem({ title, children, className, rightComponent, no
                 >
                   <ButtonIcon as={GitBranch} size="sm" className="text-typography-0" />
                   <ButtonText size="sm" className="text-typography-0">
-                    Report Issue
+                    {t('nodes.common.reportIssue')}
                   </ButtonText>
                 </Button>
               )}

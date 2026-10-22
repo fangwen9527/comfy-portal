@@ -13,6 +13,7 @@ import { Menu, MenuItem, MenuItemLabel } from '@/components/ui/menu';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useServersStore } from '@/features/server/stores/server-store';
+import { useTranslation } from '@/i18n';
 import { router } from 'expo-router';
 import { EllipsisVertical, Loader, Server, Settings2, Trash2 } from 'lucide-react-native';
 import { MotiView } from 'moti';
@@ -42,6 +43,7 @@ interface ActionMenuProps {
 
 // Sub-components
 const ServerInfo = ({ name, host, port, models, status, latency }: ServerInfoProps) => {
+  const { t } = useTranslation();
   const isRefreshing = status === 'refreshing';
   const isOnline = status === 'online';
 
@@ -71,75 +73,81 @@ const ServerInfo = ({ name, host, port, models, status, latency }: ServerInfoPro
           </Text>
         </HStack>
         <Text className="text-xs text-typography-500" numberOfLines={1}>
-          {host}:{port} • {models?.length ?? 'No'} models
+          {host}:{port} • {models ? t('server.modelCount', { count: models.length }) : t('server.noModels')}
           {isOnline && latency !== undefined ? ` • ${latency}ms` : ''}
-          {!isOnline && !isRefreshing ? ' • Offline' : ''}
+          {!isOnline && !isRefreshing ? ` • ${t('server.offline')}` : ''}
         </Text>
       </VStack>
     </HStack>
   );
 };
 
-const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => (
-  <Menu
-    placement="bottom right"
-    className="rounded-xl border border-background-200 bg-background-100 p-1"
-    trigger={({ ...triggerProps }) => {
-      return (
-        <TouchableOpacity {...triggerProps} className="h-9 w-9 items-center justify-center rounded-md">
-          <Icon as={EllipsisVertical} size="md" className="text-typography-500" />
-        </TouchableOpacity>
-      );
-    }}
-  >
-    <MenuItem
-      key="edit"
-      textValue="Edit"
-      onPress={onEdit}
-      className="rounded-lg p-3 data-[focus=true]:bg-background-200 data-[active=true]:bg-background-200"
-    >
-      <Icon as={Settings2} size="sm" className="mr-2 text-typography-700" />
-      <MenuItemLabel size="sm">Edit</MenuItemLabel>
-    </MenuItem>
-    <MenuItem
-      key="delete"
-      textValue="Delete"
-      onPress={onDelete}
-      className="rounded-lg p-3 data-[focus=true]:bg-background-200 data-[active=true]:bg-background-200"
-    >
-      <Icon as={Trash2} size="sm" className="mr-2 text-error-600" />
-      <MenuItemLabel size="sm" className="text-error-600">
-        Delete
-      </MenuItemLabel>
-    </MenuItem>
-  </Menu>
-);
+const ActionMenu = ({ onEdit, onDelete }: ActionMenuProps) => {
+  const { t } = useTranslation();
 
-const DeleteAlert = ({ isOpen, onClose, onDelete }: { isOpen: boolean; onClose: () => void; onDelete: () => void }) => (
-  <AlertDialog isOpen={isOpen} onClose={onClose}>
-    <AlertDialogBackdrop onPress={onClose} />
-    <AlertDialogContent className="max-w-md overflow-hidden rounded-xl border-0 bg-background-200">
-      <AlertDialogHeader className="px-0">
-        <Text className="text-lg font-semibold text-typography-950">Delete Server</Text>
-      </AlertDialogHeader>
-      <AlertDialogBody className="px-0 py-4">
-        <Text className="text-sm text-typography-400">
-          Are you sure you want to delete this server? This action cannot be undone.
-        </Text>
-      </AlertDialogBody>
-      <AlertDialogFooter className="px-0">
-        <HStack space="sm" className="py-0">
-          <Button variant="outline" onPress={onClose} className="flex-1 rounded-md bg-background-100">
-            <ButtonText className="text-sm text-typography-400">Cancel</ButtonText>
-          </Button>
-          <Button variant="solid" onPress={onDelete} className="flex-1 rounded-md bg-error-500 active:bg-error-600">
-            <ButtonText className="text-sm text-typography-900">Delete</ButtonText>
-          </Button>
-        </HStack>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-);
+  return (
+    <Menu
+      placement="bottom right"
+      className="rounded-xl border border-background-200 bg-background-100 p-1"
+      trigger={({ ...triggerProps }) => {
+        return (
+          <TouchableOpacity {...triggerProps} className="h-9 w-9 items-center justify-center rounded-md">
+            <Icon as={EllipsisVertical} size="md" className="text-typography-500" />
+          </TouchableOpacity>
+        );
+      }}
+    >
+      <MenuItem
+        key="edit"
+        textValue={t('server.edit')}
+        onPress={onEdit}
+        className="rounded-lg p-3 data-[focus=true]:bg-background-200 data-[active=true]:bg-background-200"
+      >
+        <Icon as={Settings2} size="sm" className="mr-2 text-typography-700" />
+        <MenuItemLabel size="sm">{t('server.edit')}</MenuItemLabel>
+      </MenuItem>
+      <MenuItem
+        key="delete"
+        textValue={t('common.action.delete')}
+        onPress={onDelete}
+        className="rounded-lg p-3 data-[focus=true]:bg-background-200 data-[active=true]:bg-background-200"
+      >
+        <Icon as={Trash2} size="sm" className="mr-2 text-error-600" />
+        <MenuItemLabel size="sm" className="text-error-600">
+          {t('common.action.delete')}
+        </MenuItemLabel>
+      </MenuItem>
+    </Menu>
+  );
+};
+
+const DeleteAlert = ({ isOpen, onClose, onDelete }: { isOpen: boolean; onClose: () => void; onDelete: () => void }) => {
+  const { t } = useTranslation();
+
+  return (
+    <AlertDialog isOpen={isOpen} onClose={onClose}>
+      <AlertDialogBackdrop onPress={onClose} />
+      <AlertDialogContent className="max-w-md overflow-hidden rounded-xl border-0 bg-background-200">
+        <AlertDialogHeader className="px-0">
+          <Text className="text-lg font-semibold text-typography-950">{t('server.deleteTitle')}</Text>
+        </AlertDialogHeader>
+        <AlertDialogBody className="px-0 py-4">
+          <Text className="text-sm text-typography-400">{t('server.deleteDescription')}</Text>
+        </AlertDialogBody>
+        <AlertDialogFooter className="px-0">
+          <HStack space="sm" className="py-0">
+            <Button variant="outline" onPress={onClose} className="flex-1 rounded-md bg-background-100">
+              <ButtonText className="text-sm text-typography-400">{t('common.action.cancel')}</ButtonText>
+            </Button>
+            <Button variant="solid" onPress={onDelete} className="flex-1 rounded-md bg-error-500 active:bg-error-600">
+              <ButtonText className="text-sm text-typography-900">{t('common.action.delete')}</ButtonText>
+            </Button>
+          </HStack>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
 
 // Main component
 export const ServerCard = ({ id, index = 0 }: ServerCardProps) => {

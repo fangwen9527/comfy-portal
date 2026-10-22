@@ -7,6 +7,7 @@ import {
 } from '@/features/ai-assistant/components/prompt-editor-modal';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { Maximize2 } from 'lucide-react-native';
 import { useCallback, useRef } from 'react';
 import BaseNode from '../../common/base-node';
@@ -19,6 +20,7 @@ interface PrimitiveStringMultilineProps {
 }
 
 export default function PrimitiveStringMultiline({ node, workflowId }: PrimitiveStringMultilineProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const promptEditorRef = useRef<PromptEditorModalRef>(null);
 
@@ -33,14 +35,14 @@ export default function PrimitiveStringMultiline({ node, workflowId }: Primitive
     promptEditorRef.current?.present({
       initialValue: node.inputs?.value || '',
       onSave: handleTextChange,
-      title: 'Edit Text',
+      title: t('nodes.common.editText'),
     });
-  }, [node.inputs?.value, handleTextChange]);
+  }, [node.inputs?.value, handleTextChange, t]);
 
   return (
     <BaseNode node={node}>
       <SubItem
-        title="Value"
+        title={t('nodes.fields.value')}
         rightComponent={
           <Pressable onPress={handleOpenEditor} className="p-1">
             <Icon as={Maximize2} size="sm" className="text-typography-500" />
@@ -55,7 +57,7 @@ export default function PrimitiveStringMultiline({ node, workflowId }: Primitive
           className="w-full rounded-md border-0 bg-background-50"
         >
           <TextareaInput
-            placeholder="Enter text here..."
+            placeholder={t('nodes.common.enterTextPlaceholder')}
             value={node.inputs?.value || ''}
             onChangeText={handleTextChange}
             className="text-sm"

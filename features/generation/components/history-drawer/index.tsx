@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/icon';
 import { Spinner } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
+import { useTranslation } from '@/i18n';
 import { loadHistoryMedia } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
 import { File } from 'expo-file-system';
@@ -35,6 +36,7 @@ export function HistoryDrawer({
   onSelectMedia,
   onMediaDeleted,
 }: HistoryDrawerProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<string[]>([]);
@@ -126,9 +128,13 @@ export function HistoryDrawer({
       setDeleteTarget(null);
     } catch (error) {
       console.error('Failed to delete media:', error);
-      showToast.error('Delete Failed', 'Failed to delete media', insets.top + 8);
+      showToast.error(
+        t('generation.toast.deleteFailed.title'),
+        t('generation.toast.deleteFailed.message'),
+        insets.top + 8,
+      );
     }
-  }, [deleteTarget, selectedMedia, serverId, workflowId, onMediaDeleted, insets.top]);
+  }, [deleteTarget, selectedMedia, serverId, workflowId, onMediaDeleted, insets.top, t]);
 
   const handleDelete = useCallback(() => {
     if (selectedMedia.length > 0) {
@@ -143,12 +149,20 @@ export function HistoryDrawer({
     try {
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
-        showToast.error('Sharing not available', 'Sharing is not supported on this device', insets.top + 8);
+        showToast.error(
+          t('generation.toast.sharingUnavailable.title'),
+          t('generation.toast.sharingUnavailable.message'),
+          insets.top + 8,
+        );
         return;
       }
 
       if (selectedMedia.length > 1) {
-        showToast.info('Sharing first item', 'Sharing multiple items is not supported', insets.top + 8);
+        showToast.info(
+          t('generation.toast.sharingFirstItem.title'),
+          t('generation.toast.sharingFirstItem.message'),
+          insets.top + 8,
+        );
       }
 
       const url = selectedMedia[0];
@@ -156,14 +170,18 @@ export function HistoryDrawer({
     } catch (error) {
       console.error('Failed to share media:', error);
     }
-  }, [insets.top, selectedMedia]);
+  }, [insets.top, selectedMedia, t]);
 
   const handleSaveSelected = useCallback(async () => {
     if (selectedMedia.length === 0) return;
 
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== 'granted') {
-      showToast.error('Permission required', 'Please allow access to save media', insets.top + 8);
+      showToast.error(
+        t('generation.toast.permissionRequired.title'),
+        t('generation.toast.permissionRequired.message'),
+        insets.top + 8,
+      );
       return;
     }
 
@@ -175,14 +193,18 @@ export function HistoryDrawer({
           savedCount++;
         })
       );
-      showToast.success('Saved', `Saved ${savedCount} items to gallery`, insets.top + 8);
+      showToast.success(
+        t('generation.toast.saved.title'),
+        t('generation.toast.saved.toGallery', { count: savedCount }),
+        insets.top + 8,
+      );
       setIsSelectionMode(false);
       setSelectedMedia([]);
     } catch (error) {
       console.error('Failed to save media:', error);
-      showToast.error('Save Failed', 'Failed to save some media', insets.top + 8);
+      showToast.error(t('generation.toast.saveFailed.title'), t('generation.toast.saveFailed.message'), insets.top + 8);
     }
-  }, [insets.top, selectedMedia]);
+  }, [insets.top, selectedMedia, t]);
 
   const handleDeleteItem = useCallback((url: string) => {
     setDeleteTarget(url);
@@ -262,7 +284,7 @@ export function HistoryDrawer({
           <View className="flex-row items-center py-3">
             <View className="flex-1 flex-row items-center gap-2">
               <Icon as={History} size="sm" className="text-background-800" />
-              <Text className="text-base font-medium text-background-800">History</Text>
+              <Text className="text-base font-medium text-background-800">{t('generation.history.title')}</Text>
             </View>
             <SelectButton isSelectionMode={isSelectionMode} onPress={handleToggleSelectionMode} />
           </View>
@@ -284,11 +306,15 @@ export function HistoryDrawer({
         isOpen={isDeleteAlertOpen}
         onClose={() => setIsDeleteAlertOpen(false)}
         onConfirm={confirmDelete}
-        title={deleteTarget === 'selection' ? 'Delete Selected Media' : 'Delete Media'}
+        title={
+          deleteTarget === 'selection'
+            ? t('generation.history.deleteSelectedTitle')
+            : t('generation.history.deleteTitle')
+        }
         description={
           deleteTarget === 'selection'
-            ? `Are you sure you want to delete ${selectedMedia.length} items? This action cannot be undone.`
-            : 'Are you sure you want to delete this item? This action cannot be undone.'
+            ? t('generation.history.deleteSelectedDescription', { count: selectedMedia.length })
+            : t('generation.history.deleteDescription')
         }
       />
     </Drawer >

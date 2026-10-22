@@ -3,6 +3,7 @@ import { RotatingSpinner } from '@/components/ui/rotating-spinner';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { Colors } from '@/constants/Colors';
+import { useTranslation, type TranslationKey } from '@/i18n';
 import { useResolvedTheme } from '@/store/theme';
 import {
   getToolName,
@@ -254,13 +255,13 @@ export function ChatMessageBubble({ message, renderFooter }: ChatMessageBubblePr
   );
 }
 
-/** Human-readable labels for the agent's tools. */
-const TOOL_LABELS: Record<string, string> = {
-  read_workflow: 'Reading workflow',
-  update_node_input: 'Updating parameter',
-  batch_update_nodes: 'Updating parameters',
-  run_workflow: 'Generating',
-  undo: 'Undoing',
+/** Labels for the agent's tools, resolved at render so they follow the language. */
+const TOOL_LABEL_KEYS: Record<string, TranslationKey> = {
+  read_workflow: 'assistant.tool.readWorkflow',
+  update_node_input: 'assistant.tool.updatingParameter',
+  batch_update_nodes: 'assistant.tool.updatingParameters',
+  run_workflow: 'assistant.tool.generating',
+  undo: 'assistant.tool.undoing',
 };
 
 /**
@@ -270,10 +271,12 @@ const TOOL_LABELS: Record<string, string> = {
  * tool arguments after the fact and could never show a before value.
  */
 function ToolPartCard({ part }: { part: ToolUIPart | DynamicToolUIPart }) {
+  const { t } = useTranslation();
   // Our agent only registers static tools, but the type guard also admits
   // dynamic ones, which carry their name on a different field.
   const name = part.type === 'dynamic-tool' ? part.toolName : getToolName(part);
-  const label = TOOL_LABELS[name] ?? name;
+  const labelKey = TOOL_LABEL_KEYS[name];
+  const label = labelKey ? t(labelKey) : name;
 
   const pending = part.state === 'input-streaming' || part.state === 'input-available';
   const failed = part.state === 'output-error';

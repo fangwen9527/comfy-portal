@@ -1,6 +1,7 @@
 import { NumberInput } from '@/components/self-ui/number-input';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 interface ModelSamplingFluxProps {
@@ -10,10 +11,11 @@ interface ModelSamplingFluxProps {
 }
 
 export default function ModelSamplingFlux({ node, serverId, workflowId }: ModelSamplingFluxProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="max_shift">
+      <SubItem title={t('nodes.fields.maxShift')}>
         <NumberInput
           value={node.inputs.max_shift}
           minValue={0}
@@ -23,7 +25,7 @@ export default function ModelSamplingFlux({ node, serverId, workflowId }: ModelS
           decimalPlaces={2}
         />
       </SubItem>
-      <SubItem title="base_shift">
+      <SubItem title={t('nodes.fields.baseShift')}>
         <NumberInput
           value={node.inputs.base_shift}
           minValue={0}

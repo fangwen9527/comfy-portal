@@ -1,0 +1,77 @@
+const generation = {
+  action: {
+    generate: 'Generate',
+    saving: 'Saving...',
+    select: 'Select',
+    selectAll: 'Select All',
+    deselectAll: 'Deselect All',
+    share: 'Share',
+    deleteSelected: 'Delete Selected',
+  },
+  selection: {
+    count: '{count} selected',
+  },
+  status: {
+    ready: 'Ready',
+    generating: 'Generating',
+    generatingPercent: 'Generating... {percent}%',
+    downloading: 'Downloading {percent}%',
+  },
+  media: {
+    image: 'Image',
+    video: 'Video',
+    saveMedia: 'Save Media',
+    setAsThumbnail: 'Set as Workflow Thumbnail',
+  },
+  preview: {
+    emptyTitle: 'No Media Yet',
+    emptyDescription: 'Generate an image to preview results here.',
+    longPressHint: 'Long press to open menu',
+    mediaAlt: 'Generated media',
+  },
+  history: {
+    title: 'History',
+    deleteTitle: 'Delete Media',
+    deleteSelectedTitle: 'Delete Selected Media',
+    deleteDescription: 'Are you sure you want to delete this item? This action cannot be undone.',
+    deleteSelectedDescription: 'Are you sure you want to delete {count} items? This action cannot be undone.',
+  },
+  queue: {
+    title: 'Queue',
+    clearAll: 'Clear All',
+    empty: 'Queue is empty',
+    running: 'Running',
+    pending: 'Pending',
+  },
+  toast: {
+    deleteFailed: { title: 'Delete Failed', message: 'Failed to delete media' },
+    saveFailed: { title: 'Save Failed', message: 'Failed to save some media' },
+    saved: {
+      title: 'Saved',
+      toGallery: 'Saved {count} items to gallery',
+      toPhotos: 'Saved {count} items to Photos',
+      toPhotosOne: 'Saved 1 item to Photos',
+    },
+    permissionRequired: { title: 'Permission required', message: 'Please allow access to save media' },
+    permissionNeeded: { title: 'Permission needed', message: 'Please grant permission to save media.' },
+    sharingUnavailable: { title: 'Sharing not available', message: 'Sharing is not supported on this device' },
+    sharingNotAvailable: { title: 'Not available', message: 'Sharing is not supported on this device' },
+    sharingFirstItem: { title: 'Sharing first item', message: 'Sharing multiple items is not supported' },
+    mediaSaved: 'Media saved to your gallery',
+    mediaSaveFailed: 'Failed to save media',
+    thumbnailUpdated: 'Thumbnail updated',
+    thumbnailFailed: 'Failed to set thumbnail',
+    downloadStarted: 'Media download started',
+    downloadFailed: 'Failed to download media',
+    serverNotFound: { title: 'Error', message: 'Server not found' },
+    generationFailed: 'Generation Failed',
+    noMediaGenerated: 'No media were generated.',
+    unexpectedError: 'An unexpected error occurred.',
+    generationLost: { title: 'Generation Lost', message: 'The server no longer has this generation.' },
+    serverGenerationFailed: 'Generation failed on the server.',
+    unknownError: 'Unknown error',
+  },
+};
+
+export type GenerationStrings = typeof generation;
+export default generation;

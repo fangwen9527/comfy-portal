@@ -2,6 +2,7 @@ import { Text } from '@/components/ui/text';
 import { Colors } from '@/constants/Colors';
 import { useGenerationNodeState } from '@/features/generation/context/generation-context';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { useResolvedTheme } from '@/store/theme';
 import { MotiView } from 'moti';
 import { ReactNode } from 'react';
@@ -14,6 +15,7 @@ export interface BaseNodeProps {
 }
 
 export default function BaseNode({ node, children, badges }: BaseNodeProps) {
+  const { t } = useTranslation();
   const { isCurrentNode, isGenerating } = useGenerationNodeState(node.id);
   const theme = useResolvedTheme();
   const colors = theme === 'dark' ? Colors.dark : Colors.light;
@@ -38,7 +40,7 @@ export default function BaseNode({ node, children, badges }: BaseNodeProps) {
           numberOfLines={1}
           strikeThrough={!node._meta?.title && !node.class_type}
         >
-          {node._meta?.title || node.class_type || 'UNKNOWN_NODE'}
+          {node._meta?.title || node.class_type || t('nodes.common.unknownNode')}
         </Text>
         {badges && <View className="flex-row items-center gap-1">{badges}</View>}
       </View>

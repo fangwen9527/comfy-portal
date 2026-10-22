@@ -7,6 +7,7 @@ import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
+import { useTranslation, type TranslationKey } from '@/i18n';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 
 import { X } from 'lucide-react-native';
@@ -18,6 +19,14 @@ import { TagMode } from './tag-mode';
 import { TextMode } from './text-mode';
 
 type EditorMode = 'Text' | 'Tag';
+
+/** Editor modes, in the order the segmented control shows them. */
+const EDITOR_MODES: EditorMode[] = ['Text', 'Tag'];
+
+const EDITOR_MODE_KEYS: Record<EditorMode, TranslationKey> = {
+  Text: 'assistant.promptEditor.modeText',
+  Tag: 'assistant.promptEditor.modeTag',
+};
 
 interface PromptEditorModalProps {
   // Props can be extended as needed
@@ -33,12 +42,13 @@ export interface PromptEditorModalRef {
 
 export const PromptEditorModal = forwardRef<PromptEditorModalRef, PromptEditorModalProps>(
   (props, ref) => {
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
     const [mode, setMode] = useState<EditorMode>('Text');
     const [value, setValue] = useState('');
-    const [title, setTitle] = useState('Edit Prompt');
+    const [title, setTitle] = useState<string | undefined>(undefined);
     const [onSaveCallback, setOnSaveCallback] = useState<((value: string) => void) | null>(null);
     const [sessionKey, setSessionKey] = useState(0);
     // Track whether the modal is currently presented, so the global
@@ -50,7 +60,7 @@ export const PromptEditorModal = forwardRef<PromptEditorModalRef, PromptEditorMo
       present: (options) => {
         setSessionKey((prev) => prev + 1);
         setValue(options.initialValue);
-        setTitle(options.title || 'Edit Prompt');
+        setTitle(options.title);
         setOnSaveCallback(() => options.onSave);
         setMode('Text');
         bottomSheetModalRef.current?.present();
@@ -81,9 +91,15 @@ export const PromptEditorModal = forwardRef<PromptEditorModalRef, PromptEditorMo
       handleClose();
     }, [value, onSaveCallback, handleClose]);
 
-    const handleModeChange = useCallback((newMode: string) => {
-      setMode(newMode as EditorMode);
-    }, []);
+    // The control only speaks option strings, so the translated label is
+    // mapped back to the mode it stands for.
+    const handleModeChange = useCallback(
+      (label: string) => {
+        const next = EDITOR_MODES.find((editorMode) => t(EDITOR_MODE_KEYS[editorMode]) === label);
+        if (next) setMode(next);
+      },
+      [t],
+    );
 
     const handleValueChange = useCallback((newValue: string) => {
       setValue(newValue);
@@ -112,13 +128,13 @@ export const PromptEditorModal = forwardRef<PromptEditorModalRef, PromptEditorMo
 
             <View className="flex-1 items-center">
               <Text className="text-base font-semibold text-typography-900" numberOfLines={1}>
-                {title}
+                {title ?? t('assistant.promptEditor.title')}
               </Text>
             </View>
 
             <View className="flex-1 items-end">
               <Button size="sm" variant="solid" action="primary" onPress={handleDone} className="rounded-lg px-4">
-                <ButtonText>Done</ButtonText>
+                <ButtonText>{t('common.action.done')}</ButtonText>
               </Button>
             </View>
           </HStack>
@@ -126,8 +142,8 @@ export const PromptEditorModal = forwardRef<PromptEditorModalRef, PromptEditorMo
           {/* Mode Selector */}
           <View className="px-4 py-3">
             <SegmentedControl
-              options={['Text', 'Tag']}
-              value={mode}
+              options={EDITOR_MODES.map((editorMode) => t(EDITOR_MODE_KEYS[editorMode]))}
+              value={t(EDITOR_MODE_KEYS[mode])}
               onChange={handleModeChange}
             />
           </View>

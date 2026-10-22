@@ -1,6 +1,7 @@
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useTranslation } from '@/i18n';
 
 /**
  * Props for the ServerStatus component
@@ -41,8 +42,9 @@ export function ServerStatus({
   nodeProgress,
   name,
 }: ServerStatusProps) {
+  const { t } = useTranslation();
   let color = 'success';
-  let status = 'Ready';
+  let status = t('generation.status.ready');
 
   if (generating) {
     color = 'warning';
@@ -55,18 +57,12 @@ export function ServerStatus({
       ? `(${nodeProgress.completed}/${nodeProgress.total})`
       : '';
 
-    if (progressPct && nodePart) {
-      status = `Generating ${progressPct} ${nodePart}`;
-    } else if (progressPct) {
-      status = `Generating ${progressPct}`;
-    } else if (nodePart) {
-      status = `Generating ${nodePart}`;
-    } else {
-      status = 'Generating';
-    }
+    // Percent and node counts read the same in every language, so they are
+    // appended to the translated verb rather than baked into separate templates.
+    status = [t('generation.status.generating'), progressPct, nodePart].filter(Boolean).join(' ');
   } else if (downloading) {
     color = 'info';
-    status = `Downloading ${Math.round(downloadProgress)}%`;
+    status = t('generation.status.downloading', { percent: Math.round(downloadProgress) });
   }
 
   return (

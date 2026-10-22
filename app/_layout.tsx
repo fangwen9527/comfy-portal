@@ -3,6 +3,7 @@ import '@/shims/ai-sdk-streams';
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { Colors } from '@/constants/Colors';
 import '@/global.css';
+import { t } from '@/i18n';
 import { useResolvedTheme, useThemeStore } from '@/store/theme';
 import { useServersStore } from '@/features/server/stores/server-store';
 import { useQuickActionStore } from '@/features/quick-action/stores/quick-action-store';
@@ -114,7 +115,7 @@ function RootLayoutNav() {
     const actions = useQuickActionStore.getState().actions;
 
     if (actions.length === 0) {
-      showToast.error('No Quick Actions configured', 'Create one from a Load Image node first', insets.top + 8);
+      showToast.error(t('common.quickAction.noActions'), t('common.quickAction.noActionsHint'), insets.top + 8);
       clearSharedPayloads();
       return;
     }
@@ -128,7 +129,7 @@ function RootLayoutNav() {
     );
 
     if (!validAction) {
-      showToast.error('Quick Action target no longer exists', 'Please reconfigure from a Load Image node', insets.top + 8);
+      showToast.error(t('common.quickAction.targetMissing'), t('common.quickAction.targetMissingHint'), insets.top + 8);
       clearSharedPayloads();
       return;
     }

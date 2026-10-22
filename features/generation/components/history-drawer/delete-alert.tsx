@@ -1,4 +1,5 @@
 import { ConfirmDialog } from '@/components/self-ui/confirm-dialog';
+import { useTranslation } from '@/i18n';
 import React from 'react';
 
 interface DeleteAlertProps {
@@ -10,10 +11,12 @@ interface DeleteAlertProps {
 }
 
 export const DeleteAlert = (props: DeleteAlertProps) => {
+  const { t } = useTranslation();
+
   return (
     <ConfirmDialog
       {...props}
-      confirmText="Delete"
+      confirmText={t('common.action.delete')}
       confirmButtonColor="bg-error-500"
     />
   );

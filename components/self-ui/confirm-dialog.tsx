@@ -3,6 +3,7 @@ import { Heading } from '@/components/ui/heading';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { Colors } from '@/constants/Colors';
+import { useTranslation } from '@/i18n';
 import { useResolvedTheme } from '@/store/theme';
 import { AnimatePresence, MotiView } from 'moti';
 import React from 'react';
@@ -26,11 +27,12 @@ export const ConfirmDialog = ({
   onConfirm,
   title,
   description,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   confirmButtonVariant = 'solid',
   confirmButtonColor = 'bg-primary-500',
 }: ConfirmDialogProps) => {
+  const { t } = useTranslation();
   const theme = useResolvedTheme();
   const activeTheme = theme ?? 'light';
 
@@ -89,14 +91,14 @@ export const ConfirmDialog = ({
                     onPress={onClose}
                     className="flex-1 rounded-md bg-background-100 py-2"
                   >
-                    <ButtonText className="text-sm text-primary-400">{cancelText}</ButtonText>
+                    <ButtonText className="text-sm text-primary-400">{cancelText ?? t('common.action.cancel')}</ButtonText>
                   </Button>
                   <Button
                     variant={confirmButtonVariant}
                     onPress={onConfirm}
                     className={`flex-1 rounded-md ${confirmButtonColor} active:opacity-80 py-2`}
                   >
-                    <ButtonText className="text-sm text-background-0">{confirmText}</ButtonText>
+                    <ButtonText className="text-sm text-background-0">{confirmText ?? t('common.action.confirm')}</ButtonText>
                   </Button>
                 </HStack>
               </View>

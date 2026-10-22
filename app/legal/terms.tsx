@@ -1,11 +1,15 @@
 import { WebViewPage } from '@/components/common/webview-page';
+import { useTranslation } from '@/i18n';
+import { docsUrl } from '@/utils/docs-url';
 
 export default function TermsScreen() {
+  const { t, locale } = useTranslation();
+
   return (
     <WebViewPage
-      uri="https://shunl12324.github.io/comfy-portal/terms"
-      loadingTitle="Loading Terms of Service..."
-      slowLoadingTitle="Terms of Service is taking longer than expected"
+      uri={docsUrl('/terms', locale)}
+      loadingTitle={t('app.legal.loadingTitle', { name: t('app.legal.termsTitle') })}
+      slowLoadingTitle={t('app.legal.slowLoadingTitle', { name: t('app.legal.termsTitle') })}
     />
   );
 }

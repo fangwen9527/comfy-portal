@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { t } from '@/i18n';
+
 import catalog from './model-catalog.json';
 import { AIProviderType } from './types';
 
@@ -62,7 +64,7 @@ export function getCatalogDate(): string {
  */
 export async function refreshCatalog(): Promise<number> {
   const response = await fetch(SOURCE_URL);
-  if (!response.ok) throw new Error(`models.dev returned HTTP ${response.status}`);
+  if (!response.ok) throw new Error(t('assistant.catalogFetchFailed', { status: response.status }));
   const data = await response.json();
 
   const providers: RawProviders = {};

@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
+import { useTranslation } from '@/i18n';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ChevronDown } from 'lucide-react-native';
 import React, { useCallback, useRef } from 'react';
@@ -13,6 +14,7 @@ interface SchedulerSelectorProps {
 }
 
 export function SchedulerSelector({ value, onChange }: SchedulerSelectorProps) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = React.useState(false);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
 
@@ -46,7 +48,7 @@ export function SchedulerSelector({ value, onChange }: SchedulerSelectorProps) {
           onChange(newValue as Scheduler);
           handleClose();
         }}
-        title="Select Scheduler"
+        title={t('common.selector.selectScheduler')}
         options={SCHEDULER_OPTIONS}
         value={value}
         showSearch={false}

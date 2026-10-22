@@ -6,6 +6,7 @@ import { VStack } from '@/components/ui/vstack';
 import { useServersStore } from '@/features/server/stores/server-store';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { uploadImage } from '@/services/comfy-api';
 import { buildServerUrl } from '@/services/network';
 import { clearNodeSchemaCache } from '@/services/node-schema';
@@ -41,6 +42,7 @@ interface UploadAssetCandidate {
 type PendingSourcePickerAction = 'library' | 'files' | 'camera' | 'server' | null;
 
 export default function LoadImage({ node, serverId, workflowId, sharedImageUri }: LoadImageNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const server = useServersStore((state) => state.servers.find((s) => s.id === serverId));
   const addQuickAction = useQuickActionStore((state) => state.addAction);
@@ -170,7 +172,11 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
       if (error instanceof Error && error.message.includes('canceled')) {
         // Upload canceled, do nothing
       } else {
-        showToast.error('Error uploading image', error instanceof Error ? error.message : undefined, safeAreaInsets.top + 8);
+        showToast.error(
+          t('nodes.loadImage.uploadError'),
+          error instanceof Error ? error.message : undefined,
+          safeAreaInsets.top + 8,
+        );
       }
     } finally {
       setIsUploading(false);
@@ -182,7 +188,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
   const handlePickFromLibrary = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      showToast.error('Permission to access media library is required', undefined, safeAreaInsets.top + 8);
+      showToast.error(t('nodes.loadImage.libraryPermission'), undefined, safeAreaInsets.top + 8);
       return;
     }
 
@@ -203,12 +209,16 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
     } catch (pickerError) {
       if (pickerError instanceof Error && pickerError.message === 'PICKER_TIMEOUT') {
         showToast.error(
-          'Photo Library timed out',
-          'Try using "Files" instead',
+          t('nodes.loadImage.libraryTimeout'),
+          t('nodes.loadImage.libraryTimeoutHint'),
           safeAreaInsets.top + 8,
         );
       } else {
-        showToast.error('Failed to pick image', pickerError instanceof Error ? pickerError.message : undefined, safeAreaInsets.top + 8);
+        showToast.error(
+          t('nodes.loadImage.pickError'),
+          pickerError instanceof Error ? pickerError.message : undefined,
+          safeAreaInsets.top + 8,
+        );
       }
       return;
     } finally {
@@ -245,7 +255,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
   const handlePickFromCamera = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
-      showToast.error('Permission to access camera is required', undefined, safeAreaInsets.top + 8);
+      showToast.error(t('nodes.loadImage.cameraPermission'), undefined, safeAreaInsets.top + 8);
       return;
     }
 
@@ -344,7 +354,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
         (a) => a.serverId === serverId && a.workflowId === workflowId && a.targetNodeId === node.id,
       );
       existing.forEach((a) => { removeQuickAction(a.id); });
-      showToast.success('Quick Action removed', undefined, safeAreaInsets.top + 8);
+      showToast.success(t('nodes.loadImage.quickActionRemoved'), undefined, safeAreaInsets.top + 8);
     } else {
       const workflow = useWorkflowStore.getState().workflow.find((w) => w.id === workflowId);
       const name = workflow?.name
@@ -356,9 +366,23 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
         workflowId,
         targetNodeId: node.id,
       });
-      showToast.success('Quick Action enabled', 'Share images from Photos to this node', safeAreaInsets.top + 8);
+      showToast.success(
+        t('nodes.loadImage.quickActionEnabled'),
+        t('nodes.loadImage.quickActionHint'),
+        safeAreaInsets.top + 8,
+      );
     }
-  }, [hasQuickAction, removeQuickAction, addQuickAction, serverId, workflowId, node.id, node._meta?.title, safeAreaInsets.top]);
+  }, [
+    hasQuickAction,
+    removeQuickAction,
+    addQuickAction,
+    serverId,
+    workflowId,
+    node.id,
+    node._meta?.title,
+    safeAreaInsets.top,
+    t,
+  ]);
 
   return (
     <BaseNode
@@ -379,12 +403,12 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
           <Text
             className={`text-xs font-medium ${hasQuickAction ? 'text-typography-0' : 'text-typography-400'}`}
           >
-            Quick Action
+            {t('nodes.loadImage.quickAction')}
           </Text>
         </Pressable>
       }
     >
-      <SubItem title="image">
+      <SubItem title={t('nodes.loadImage.image')}>
         <Pressable
           onPress={handleOpenSourcePicker}
           className="relative h-48 w-full items-center justify-center rounded-xl bg-background-50"
@@ -416,7 +440,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
             <VStack space="md" className="h-full w-full items-center justify-center">
               <Icon as={ImageIcon} className="h-8 w-8 text-typography-500" />
               <Text size="sm" className="text-typography-500">
-                Upload Image
+                {t('nodes.loadImage.uploadImage')}
               </Text>
             </VStack>
           ) : null}
@@ -424,7 +448,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
             <VStack space="sm" className="absolute inset-0 items-center justify-center rounded-xl bg-black/50 p-4">
               <Icon as={ImageIcon} className="h-8 w-8 text-typography-600 mb-2" />
               <Text size="sm" className="text-typography-600 font-medium">
-                Uploading... {Math.round(uploadProgress * 100)}%
+                {t('nodes.loadImage.uploading', { progress: Math.round(uploadProgress * 100) })}
               </Text>
               <View className="h-1 w-full bg-white/30 rounded-full overflow-hidden">
                 <Animated.View
@@ -455,7 +479,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
         >
           <BottomSheetView style={{ paddingHorizontal: 16, paddingBottom: safeAreaInsets.bottom + 16 }}>
             <VStack space="sm">
-              <Text className="mb-1 text-sm font-semibold text-typography-900">Set Image</Text>
+              <Text className="mb-1 text-sm font-semibold text-typography-900">{t('nodes.loadImage.setImage')}</Text>
 
               <Pressable
                 onPress={() => {
@@ -465,15 +489,13 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
               >
                 <Icon as={HardDrive} className="h-4 w-4 text-typography-700" />
                 <VStack className="flex-1">
-                  <Text className="text-sm text-typography-900">Already on Server</Text>
-                  <Text className="text-xs text-typography-400">
-                    Pick from the server&apos;s input folder — no upload
-                  </Text>
+                  <Text className="text-sm text-typography-900">{t('nodes.loadImage.alreadyOnServer')}</Text>
+                  <Text className="text-xs text-typography-400">{t('nodes.loadImage.alreadyOnServerHint')}</Text>
                 </VStack>
               </Pressable>
 
               <Text className="mb-1 mt-2 text-xs font-medium uppercase text-typography-400">
-                Upload
+                {t('nodes.loadImage.upload')}
               </Text>
 
               <Pressable
@@ -483,7 +505,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
                 className="flex-row items-center gap-3 rounded-xl bg-background-50 px-4 py-3"
               >
                 <Icon as={ImageIcon} className="h-4 w-4 text-typography-700" />
-                <Text className="text-sm text-typography-900">Photo Library</Text>
+                <Text className="text-sm text-typography-900">{t('nodes.loadImage.photoLibrary')}</Text>
               </Pressable>
 
               <Pressable
@@ -493,7 +515,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
                 className="flex-row items-center gap-3 rounded-xl bg-background-50 px-4 py-3"
               >
                 <Icon as={Folder} className="h-4 w-4 text-typography-700" />
-                <Text className="text-sm text-typography-900">Files</Text>
+                <Text className="text-sm text-typography-900">{t('nodes.loadImage.files')}</Text>
               </Pressable>
 
               <Pressable
@@ -503,7 +525,7 @@ export default function LoadImage({ node, serverId, workflowId, sharedImageUri }
                 className="flex-row items-center gap-3 rounded-xl bg-background-50 px-4 py-3"
               >
                 <Icon as={Camera} className="h-4 w-4 text-typography-700" />
-                <Text className="text-sm text-typography-900">Camera</Text>
+                <Text className="text-sm text-typography-900">{t('nodes.loadImage.camera')}</Text>
               </Pressable>
             </VStack>
           </BottomSheetView>

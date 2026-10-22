@@ -2,6 +2,7 @@ import { NumberInput } from '@/components/self-ui/number-input';
 import { Text } from '@/components/ui/text';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 import { MAX_AUDIOS, MAX_IMAGES, MAX_VIDEOS } from './constants';
@@ -17,12 +18,13 @@ interface MiniMaxH3EasyMediaBridgeProps {
  * are links, so only the counts are adjustable here.
  */
 export default function MiniMaxH3EasyMediaBridge({ node, workflowId }: MiniMaxH3EasyMediaBridgeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   const counts: { key: string; title: string; max: number }[] = [
-    { key: 'image_count', title: 'Images', max: MAX_IMAGES },
-    { key: 'video_count', title: 'Videos', max: MAX_VIDEOS },
-    { key: 'audio_count', title: 'Audio clips', max: MAX_AUDIOS },
+    { key: 'image_count', title: t('nodes.minimax.images'), max: MAX_IMAGES },
+    { key: 'video_count', title: t('nodes.minimax.videos'), max: MAX_VIDEOS },
+    { key: 'audio_count', title: t('nodes.minimax.audioClips'), max: MAX_AUDIOS },
   ];
 
   return (
@@ -41,11 +43,8 @@ export default function MiniMaxH3EasyMediaBridge({ node, workflowId }: MiniMaxH3
           />
         </SubItem>
       ))}
-      <SubItem title="Media sources">
-        <Text size="sm" className="text-typography-500">
-          Connect each source to its numbered input on the desktop editor. Only the counts are
-          editable here.
-        </Text>
+      <SubItem title={t('nodes.minimax.mediaSources')}>
+        <Text size="sm" className="text-typography-500">{t('nodes.minimax.mediaSourcesHint')}</Text>
       </SubItem>
     </BaseNode>
   );

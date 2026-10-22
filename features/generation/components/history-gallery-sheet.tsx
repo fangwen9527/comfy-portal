@@ -1,6 +1,7 @@
 import { ThemedBottomSheetModal } from '@/components/self-ui/themed-bottom-sheet-modal';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
+import { useTranslation } from '@/i18n';
 import { loadHistoryMedia } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
 import { File } from 'expo-file-system';
@@ -35,6 +36,7 @@ const LONG_PRESS_DURATION = 300;
 
 export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGallerySheetProps>(
   ({ serverId, workflowId, onSelectMedia }, ref) => {
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const sheetRef = useRef<BottomSheetModal>(null);
     const needsLoadRef = useRef(false);
@@ -210,27 +212,39 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
         setIsSelectionMode(false);
         setIsDeleteAlertOpen(false);
       } catch {
-        showToast.error('Delete Failed', 'Failed to delete media', insets.top + 8);
+        showToast.error(
+          t('generation.toast.deleteFailed.title'),
+          t('generation.toast.deleteFailed.message'),
+          insets.top + 8,
+        );
       }
-    }, [selectedMedia, serverId, workflowId, insets.top]);
+    }, [selectedMedia, serverId, workflowId, insets.top, t]);
 
     const handleShare = useCallback(async () => {
       if (selectedMedia.size === 0) return;
       try {
         const isAvailable = await Sharing.isAvailableAsync();
         if (!isAvailable) {
-          showToast.error('Not available', 'Sharing is not supported on this device', insets.top + 8);
+          showToast.error(
+            t('generation.toast.sharingNotAvailable.title'),
+            t('generation.toast.sharingNotAvailable.message'),
+            insets.top + 8,
+          );
           return;
         }
         await Sharing.shareAsync(selectedMedia.values().next().value!);
       } catch { /* ignore */ }
-    }, [insets.top, selectedMedia]);
+    }, [insets.top, selectedMedia, t]);
 
     const handleSave = useCallback(async () => {
       if (selectedMedia.size === 0) return;
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        showToast.error('Permission required', 'Please allow access to save media', insets.top + 8);
+        showToast.error(
+          t('generation.toast.permissionRequired.title'),
+          t('generation.toast.permissionRequired.message'),
+          insets.top + 8,
+        );
         return;
       }
       let savedCount = 0;
@@ -239,13 +253,23 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
           await MediaLibrary.saveToLibraryAsync(url);
           savedCount++;
         }
-        showToast.success('Saved', `Saved ${savedCount} item${savedCount > 1 ? 's' : ''} to Photos`, insets.top + 8);
+        showToast.success(
+          t('generation.toast.saved.title'),
+          savedCount > 1
+            ? t('generation.toast.saved.toPhotos', { count: savedCount })
+            : t('generation.toast.saved.toPhotosOne'),
+          insets.top + 8,
+        );
         setIsSelectionMode(false);
         setSelectedMedia(new Set());
       } catch {
-        showToast.error('Save Failed', 'Failed to save some media', insets.top + 8);
+        showToast.error(
+          t('generation.toast.saveFailed.title'),
+          t('generation.toast.saveFailed.message'),
+          insets.top + 8,
+        );
       }
-    }, [insets.top, selectedMedia]);
+    }, [insets.top, selectedMedia, t]);
 
     // Chunk media into rows of NUM_COLUMNS
     const rows = useMemo(() => {
@@ -277,8 +301,8 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
                 <Icon as={History} size="sm" className="text-typography-800" />
                 <Text className="text-base font-medium text-typography-800">
                   {isSelectionMode
-                    ? `${selectedMedia.size} selected`
-                    : 'History'}
+                    ? t('generation.selection.count', { count: selectedMedia.size })
+                    : t('generation.history.title')}
                 </Text>
               </View>
 
@@ -312,7 +336,7 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
                     onPress={exitSelectionMode}
                     className="ml-1 h-8 items-center justify-center rounded-lg px-3 bg-primary-500 active:bg-primary-600"
                   >
-                    <Text className="text-xs font-semibold text-white">Done</Text>
+                    <Text className="text-xs font-semibold text-white">{t('common.action.done')}</Text>
                   </Pressable>
                 </View>
               ) : (
@@ -320,7 +344,7 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
                   onPress={() => setIsSelectionMode(true)}
                   className="h-8 items-center justify-center rounded-lg px-3 active:bg-background-100"
                 >
-                  <Text className="text-sm font-medium text-primary-500">Select</Text>
+                  <Text className="text-sm font-medium text-primary-500">{t('generation.action.select')}</Text>
                 </Pressable>
               )}
             </View>
@@ -376,11 +400,13 @@ export const HistoryGallerySheet = forwardRef<HistoryGallerySheetRef, HistoryGal
           isOpen={isDeleteAlertOpen}
           onClose={() => setIsDeleteAlertOpen(false)}
           onConfirm={confirmDelete}
-          title={selectedMedia.size > 1 ? 'Delete Selected Media' : 'Delete Media'}
+          title={
+            selectedMedia.size > 1 ? t('generation.history.deleteSelectedTitle') : t('generation.history.deleteTitle')
+          }
           description={
             selectedMedia.size > 1
-              ? `Are you sure you want to delete ${selectedMedia.size} items? This action cannot be undone.`
-              : 'Are you sure you want to delete this item? This action cannot be undone.'
+              ? t('generation.history.deleteSelectedDescription', { count: selectedMedia.size })
+              : t('generation.history.deleteDescription')
           }
         />
       </>

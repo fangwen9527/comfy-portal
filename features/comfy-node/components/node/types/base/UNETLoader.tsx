@@ -2,6 +2,7 @@ import { ModelSelector } from '@/components/common/selectors/model';
 import { OptionSelector } from '@/components/common/selectors/option-selector';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 interface UNETLoaderProps {
@@ -11,6 +12,7 @@ interface UNETLoaderProps {
 }
 
 export default function UNETLoader({ node, serverId, workflowId }: UNETLoaderProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
@@ -24,7 +26,7 @@ export default function UNETLoader({ node, serverId, workflowId }: UNETLoaderPro
         inputName="unet_name"
         serverId={serverId}
       />
-      <SubItem title="Weight Dtype">
+      <SubItem title={t('nodes.fields.weightDtype')}>
         <OptionSelector
           value={node.inputs.weight_dtype}
           onChange={(value) => {
@@ -33,7 +35,7 @@ export default function UNETLoader({ node, serverId, workflowId }: UNETLoaderPro
           options={[
             {
               value: 'default',
-              label: 'Default',
+              label: t('nodes.weightDtype.default'),
             },
             {
               value: 'fp8_e4m3fn',

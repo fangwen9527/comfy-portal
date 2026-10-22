@@ -1,6 +1,7 @@
 import { NumberSlider } from '@/components/self-ui/slider';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -11,10 +12,11 @@ interface VAEEncodeForInpaintNodeProps {
 }
 
 export default function VAEEncodeForInpaint({ node, serverId, workflowId }: VAEEncodeForInpaintNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="grow_mask_by" node={node} dependencies={['grow_mask_by']}>
+      <SubItem title={t('nodes.fields.growMaskBy')} node={node} dependencies={['grow_mask_by']}>
         <NumberSlider
           value={node.inputs.grow_mask_by}
           onChange={(value) => {

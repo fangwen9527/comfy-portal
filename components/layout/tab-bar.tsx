@@ -1,3 +1,4 @@
+import { useTranslation } from '@/i18n';
 import { Server, Settings2 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React from 'react';
@@ -39,6 +40,7 @@ const TabItem = ({ icon, label, isActive, onPress }: TabItemProps) => {
 };
 
 export const TabBar = ({ activeTab, onChangeTab }: TabBarProps) => {
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const tabWidth = width / NUM_TABS;
@@ -78,7 +80,7 @@ export const TabBar = ({ activeTab, onChangeTab }: TabBarProps) => {
               className={`${activeTab === 'server' ? 'text-typography-950' : 'text-typography-400'}`}
             />
           }
-          label="Server"
+          label={t('common.nav.server')}
           isActive={activeTab === 'server'}
           onPress={() => onChangeTab('server')}
         />
@@ -90,7 +92,7 @@ export const TabBar = ({ activeTab, onChangeTab }: TabBarProps) => {
               className={`${activeTab === 'setting' ? 'text-typography-950' : 'text-typography-400'}`}
             />
           }
-          label="Setting"
+          label={t('common.nav.setting')}
           isActive={activeTab === 'setting'}
           onPress={() => onChangeTab('setting')}
         />

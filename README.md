@@ -48,6 +48,7 @@
 | **AI Assistant** | Edit a workflow by describing what you want. Streams its replies, shows every change it makes, and works with 17 providers (OpenAI, Anthropic, Gemini, DeepSeek, Groq, xAI, Mistral…) or any OpenAI-compatible endpoint, including local ones like Ollama and LM Studio. |
 | **History Gallery** | Every generation kept per workflow — images and video — with multi-select to save, share or delete, and swipe navigation in full screen. |
 | **Broad Node Support** | Hand-built editors for the common nodes, and anything else rendered straight from your server's own node definitions, so custom nodes work without waiting for an app update. |
+| **Bilingual UI** | English and Simplified Chinese, switchable in Settings — including the guide and legal pages. |
 | **Privacy First** | Direct connection to your server. No data is stored on our cloud. |
 
 ## Interface

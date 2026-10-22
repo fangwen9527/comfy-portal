@@ -9,7 +9,9 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { parseWorkflowTemplate } from '@/features/workflow/utils/workflow-parser';
+import { useTranslation } from '@/i18n';
 import { saveWorkflowThumbnail } from '@/services/image-storage';
+import { docsUrl } from '@/utils/docs-url';
 import { showToast } from '@/utils/toast';
 import * as ExpoClipboard from 'expo-clipboard';
 import { generateUUID } from '@/utils/uuid';
@@ -27,8 +29,9 @@ interface AddWorkflowModalProps {
 }
 
 export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowModalProps) {
+  const { t, locale } = useTranslation();
   const insets = useSafeAreaInsets();
-  const [name, setName] = useState('New Workflow');
+  const [name, setName] = useState(() => t('workflow.importModal.defaultName'));
   const [thumbnail, setThumbnail] = useState('');
   const [error, setError] = useState('');
   const [workflowData, setWorkflowData] = useState<any>(null);
@@ -38,18 +41,18 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
   useEffect(() => {
     if (name.trim().length > 50) {
       setName(name.slice(0, 50));
-      showToast.error('Name must be less than 50 characters', undefined, insets.top + 8);
+      showToast.error(t('workflow.nameTooLong', { count: 50 }), undefined, insets.top + 8);
     }
-  }, [insets.top, name]);
+  }, [insets.top, name, t]);
 
   const handleAdd = async () => {
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('workflow.nameRequired'));
       return;
     }
 
     if (!workflowData) {
-      setError('Please import a workflow first');
+      setError(t('workflow.importModal.importRequired'));
       return;
     }
 
@@ -85,7 +88,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
+      alert(t('workflow.photoPermission'));
       return;
     }
 
@@ -112,7 +115,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
         }
       } catch (error) {
         console.error('Failed to save thumbnail:', error);
-        alert('Failed to save image. Please try again.');
+        alert(t('workflow.saveImageFailed'));
       }
     }
   };
@@ -149,7 +152,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
       setName(result.assets[0].name);
     } catch (error) {
       console.error('Failed to import workflow file:', error);
-      showToast.error('Import Failed', 'Please make sure it is a valid workflow JSON file.', insets.top);
+      showToast.error(t('workflow.importModal.importFailed'), t('workflow.importModal.invalidJsonFile'), insets.top);
     }
   };
 
@@ -157,13 +160,13 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
     try {
       const hasClipboardText = await ExpoClipboard.hasStringAsync();
       if (!hasClipboardText) {
-        showToast.error('Import Failed', 'No text content found in clipboard.', insets.top);
+        showToast.error(t('workflow.importModal.importFailed'), t('workflow.importModal.noClipboardText'), insets.top);
         return;
       }
 
       const clipboardContent = await ExpoClipboard.getStringAsync();
       if (!clipboardContent) {
-        showToast.error('Import Failed', 'Clipboard is empty.', insets.top);
+        showToast.error(t('workflow.importModal.importFailed'), t('workflow.importModal.clipboardEmpty'), insets.top);
         return;
       }
 
@@ -173,22 +176,22 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
         addMethod: 'clipboard',
         data: parseWorkflowTemplate(jsonData),
       });
-      setUploadedFileName('Imported from clipboard');
+      setUploadedFileName(t('workflow.importModal.importedFromClipboard'));
     } catch (error) {
       console.error('Failed to import workflow from clipboard:', error);
-      showToast.error('Import Failed', 'Please make sure you have copied a valid workflow JSON.', insets.top);
+      showToast.error(t('workflow.importModal.importFailed'), t('workflow.importModal.invalidClipboardJson'), insets.top);
     }
   };
 
   return (
     <KeyboardModal isOpen={isOpen} onClose={handleClose}>
       <KeyboardModal.Header>
-        <Text className="text-lg font-semibold text-primary-500">Import Workflow</Text>
+        <Text className="text-lg font-semibold text-primary-500">{t('workflow.importModal.title')}</Text>
       </KeyboardModal.Header>
 
       <KeyboardModal.Body scrollEnabled={false}>
         <VStack space="md">
-          <KeyboardModal.Item title="Name" error={error}>
+          <KeyboardModal.Item title={t('workflow.nameLabel')} error={error}>
             <Input variant="outline" size="md" className="mt-1 overflow-hidden rounded-md border-0 bg-background-0">
               <InputField
                 defaultValue={name}
@@ -196,7 +199,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
                   setName(value);
                   setError('');
                 }}
-                placeholder="Enter workflow name"
+                placeholder={t('workflow.namePlaceholder')}
                 className="px-3 py-2 text-sm text-primary-500"
               />
             </Input>
@@ -204,9 +207,9 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
 
           <VStack space="sm">
             <HStack space="sm" className="items-center">
-              <Text className="text-sm font-medium text-primary-400">Import Workflow</Text>
-              <Link href="https://shunl12324.github.io/comfy-portal/guide/workflow-json">
-                <LinkText className="text-xs">Where to get my workflow file?</LinkText>
+              <Text className="text-sm font-medium text-primary-400">{t('workflow.importModal.title')}</Text>
+              <Link href={docsUrl('/guide/workflow-json', locale)}>
+                <LinkText className="text-xs">{t('workflow.importModal.whereToGet')}</LinkText>
               </Link>
             </HStack>
             <Pressable
@@ -219,12 +222,12 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
                   {uploadedFileName ? (
                     <>
                       <Text className="text-sm font-medium text-primary-500">{uploadedFileName}</Text>
-                      <Text className="text-xs text-primary-300">Click to change file</Text>
+                      <Text className="text-xs text-primary-300">{t('workflow.importModal.clickToChange')}</Text>
                     </>
                   ) : (
                     <>
-                      <Text className="text-sm font-medium text-primary-400">Click to select workflow file</Text>
-                      <Text className="text-xs text-primary-300">Supports JSON format</Text>
+                      <Text className="text-sm font-medium text-primary-400">{t('workflow.importModal.clickToSelect')}</Text>
+                      <Text className="text-xs text-primary-300">{t('workflow.importModal.supportsJson')}</Text>
                     </>
                   )}
                 </VStack>
@@ -238,25 +241,27 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
             >
               <ButtonIcon as={workflowData?.addMethod === 'clipboard' ? CheckCircle : Clipboard} size="md" />
               <ButtonText className="text-typography-0">
-                {workflowData?.addMethod === 'clipboard' ? 'Imported from Clipboard' : 'Import from Clipboard'}
+                {workflowData?.addMethod === 'clipboard'
+                  ? t('workflow.importModal.importedFromClipboard')
+                  : t('workflow.importModal.importFromClipboard')}
               </ButtonText>
             </Button>
           </VStack>
 
           <VStack space="xs">
-            <Text className="text-sm font-medium text-primary-400">Thumbnail (Optional)</Text>
+            <Text className="text-sm font-medium text-primary-400">{t('workflow.thumbnailOptional')}</Text>
             <Pressable onPress={handleSelectImage} className="overflow-hidden rounded-md border-0 bg-background-0">
               {thumbnail ? (
                 <Image
                   source={{ uri: thumbnail }}
                   className="h-40 w-full"
                   resizeMode="cover"
-                  alt="Workflow thumbnail"
+                  alt={t('workflow.thumbnailAlt')}
                 />
               ) : (
                 <VStack className="h-40 items-center justify-center">
                   <ImagePlus className="text-primary-300" />
-                  <Text className="mt-2 text-sm text-primary-300">Add thumbnail</Text>
+                  <Text className="mt-2 text-sm text-primary-300">{t('workflow.addThumbnail')}</Text>
                 </VStack>
               )}
             </Pressable>
@@ -267,7 +272,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
       <KeyboardModal.Footer>
         <HStack space="sm">
           <Button variant="outline" onPress={handleClose} className="flex-1 rounded-md bg-background-100">
-            <ButtonText className="text-primary-400">Cancel</ButtonText>
+            <ButtonText className="text-primary-400">{t('common.action.cancel')}</ButtonText>
           </Button>
           <Button
             variant="solid"
@@ -276,7 +281,7 @@ export function ImportWorkflowModal({ isOpen, onClose, serverId }: AddWorkflowMo
               }`}
             disabled={!name.trim() || !workflowData}
           >
-            <ButtonText className="text-background-0">Add</ButtonText>
+            <ButtonText className="text-background-0">{t('workflow.addButton')}</ButtonText>
           </Button>
         </HStack>
       </KeyboardModal.Footer>

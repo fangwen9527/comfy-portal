@@ -1,4 +1,5 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/i18n';
 import { Server, Settings2 } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import React from 'react';
@@ -57,6 +58,7 @@ const SidebarItem = ({ icon, label, isActive, onPress, colors }: SidebarItemProp
 };
 
 export const Sidebar = ({ activeTab, onChangeTab }: SidebarProps) => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
   const { width } = useWindowDimensions();
@@ -71,14 +73,14 @@ export const Sidebar = ({ activeTab, onChangeTab }: SidebarProps) => {
       <VStack space="xs" className="px-3 pt-4">
         <SidebarItem
           icon={Server}
-          label="Servers"
+          label={t('common.nav.servers')}
           isActive={activeTab === 'server'}
           onPress={() => onChangeTab('server')}
           colors={colors}
         />
         <SidebarItem
           icon={Settings2}
-          label="Settings"
+          label={t('common.nav.settings')}
           isActive={activeTab === 'setting'}
           onPress={() => onChangeTab('setting')}
           colors={colors}

@@ -1,3 +1,5 @@
+import type { TranslationKey } from '@/i18n';
+
 /**
  * Input options for ComfyUI-MiniMaxH3-Easy.
  *
@@ -7,57 +9,87 @@
 
 export interface Option {
   value: string;
-  label: string;
-  description?: string;
+  /** i18n key for the visible label; unset when the label is the raw value. */
+  labelKey?: TranslationKey;
+  /** i18n key for the secondary line; unset when there is none. */
+  descriptionKey?: TranslationKey;
 }
 
 export const MODE_OPTIONS: Option[] = [
-  { value: 'image', label: 'Image', description: 'Text-to-video, or first/last frame from up to two images' },
-  { value: 'reference', label: 'Reference', description: 'Reference video from mixed image, video and audio media' },
+  {
+    value: 'image',
+    labelKey: 'nodes.minimax.option.modeImage',
+    descriptionKey: 'nodes.minimax.option.modeImageDescription',
+  },
+  {
+    value: 'reference',
+    labelKey: 'nodes.minimax.option.modeReference',
+    descriptionKey: 'nodes.minimax.option.modeReferenceDescription',
+  },
 ];
 
 export const RESOLUTION_OPTIONS: Option[] = [
-  { value: '360P', label: '360P' },
-  { value: '416P', label: '416P' },
-  { value: '480P', label: '480P' },
-  { value: '540P', label: '540P' },
-  { value: '640P', label: '640P' },
-  { value: '720P', label: '720P' },
-  { value: '768P', label: '768P' },
-  { value: '832P', label: '832P' },
-  { value: '928P', label: '928P' },
-  { value: '1024P', label: '1024P' },
-  { value: '1080P', label: '1080P' },
-  { value: 'custom', label: 'Custom' },
+  { value: '360P' },
+  { value: '416P' },
+  { value: '480P' },
+  { value: '540P' },
+  { value: '640P' },
+  { value: '720P' },
+  { value: '768P' },
+  { value: '832P' },
+  { value: '928P' },
+  { value: '1024P' },
+  { value: '1080P' },
+  { value: 'custom', labelKey: 'nodes.common.custom' },
 ];
 
 export const ASPECT_RATIO_OPTIONS: Option[] = [
-  { value: '1:1', label: '1:1', description: 'Square' },
-  { value: '2:3', label: '2:3', description: 'Photo portrait' },
-  { value: '3:2', label: '3:2', description: 'Photo' },
-  { value: '3:4', label: '3:4', description: 'Standard portrait' },
-  { value: '4:3', label: '4:3', description: 'Standard' },
-  { value: '9:16', label: '9:16', description: 'Widescreen portrait' },
-  { value: '16:9', label: '16:9', description: 'Widescreen' },
-  { value: '21:9', label: '21:9', description: 'Ultrawide' },
+  { value: '1:1', descriptionKey: 'nodes.minimax.option.aspectSquare' },
+  { value: '2:3', descriptionKey: 'nodes.minimax.option.aspectPhotoPortrait' },
+  { value: '3:2', descriptionKey: 'nodes.minimax.option.aspectPhoto' },
+  { value: '3:4', descriptionKey: 'nodes.minimax.option.aspectStandardPortrait' },
+  { value: '4:3', descriptionKey: 'nodes.minimax.option.aspectStandard' },
+  { value: '9:16', descriptionKey: 'nodes.minimax.option.aspectWidescreenPortrait' },
+  { value: '16:9', descriptionKey: 'nodes.minimax.option.aspectWidescreen' },
+  { value: '21:9', descriptionKey: 'nodes.minimax.option.aspectUltrawide' },
 ];
 
 export const KEYFRAME_ROLE_OPTIONS: Option[] = [
-  { value: 'first', label: 'First frame', description: 'A single image starts the video' },
-  { value: 'last', label: 'Last frame', description: 'A single image ends the video' },
+  {
+    value: 'first',
+    labelKey: 'nodes.minimax.option.keyframeFirst',
+    descriptionKey: 'nodes.minimax.option.keyframeFirstDescription',
+  },
+  {
+    value: 'last',
+    labelKey: 'nodes.minimax.option.keyframeLast',
+    descriptionKey: 'nodes.minimax.option.keyframeLastDescription',
+  },
 ];
 
 export const REF_IMAGE_SIZE_OPTIONS: Option[] = [
-  { value: 'match', label: 'Match generation size' },
-  { value: '1k', label: '1K area', description: '~1 MP' },
-  { value: '1.5k', label: '1.5K area', description: '~2.25 MP' },
-  { value: '2k', label: '2K area', description: '~4 MP' },
-  { value: 'original', label: 'Original' },
+  { value: 'match', labelKey: 'nodes.minimax.option.refSizeMatch' },
+  {
+    value: '1k',
+    labelKey: 'nodes.minimax.option.refSize1k',
+    descriptionKey: 'nodes.minimax.option.refSize1kDescription',
+  },
+  {
+    value: '1.5k',
+    labelKey: 'nodes.minimax.option.refSize15k',
+    descriptionKey: 'nodes.minimax.option.refSize15kDescription',
+  },
+  {
+    value: '2k',
+    labelKey: 'nodes.minimax.option.refSize2k',
+    descriptionKey: 'nodes.minimax.option.refSize2kDescription',
+  },
+  { value: 'original', labelKey: 'nodes.minimax.option.refSizeOriginal' },
 ];
 
 export const REFERENCE_MENTION_OPTIONS: Option[] = [
-  { value: 'index', label: 'By index' },
-  { value: 'filename', label: 'By filename' },
+  { value: 'index', labelKey: 'nodes.minimax.option.mentionByIndex' },
+  { value: 'filename', labelKey: 'nodes.minimax.option.mentionByFilename' },
 ];
 
 /**
@@ -66,15 +98,15 @@ export const REFERENCE_MENTION_OPTIONS: Option[] = [
  * the workflow already holds selectable rather than silently dropping it.
  */
 export const SCENE_GUIDE_OPTIONS: Option[] = [
-  { value: 'none', label: 'None' },
-  { value: '3d_animation_short', label: '3D Animation Short' },
-  { value: 'brand_promo', label: 'Brand Promo' },
-  { value: 'coop_game_intro', label: 'Co-op Game Intro' },
-  { value: 'handdrawn_live', label: 'Hand-drawn Live' },
-  { value: 'minimalist_product_ad', label: 'Minimalist Product Ad' },
-  { value: 'music_video_subtitle', label: 'Music Video Subtitle' },
-  { value: 'paper_collage', label: 'Paper Collage' },
-  { value: 'papercraft_stop_motion', label: 'Papercraft Stop Motion' },
+  { value: 'none', labelKey: 'nodes.minimax.option.sceneNone' },
+  { value: '3d_animation_short', labelKey: 'nodes.minimax.option.scene3dAnimationShort' },
+  { value: 'brand_promo', labelKey: 'nodes.minimax.option.sceneBrandPromo' },
+  { value: 'coop_game_intro', labelKey: 'nodes.minimax.option.sceneCoopGameIntro' },
+  { value: 'handdrawn_live', labelKey: 'nodes.minimax.option.sceneHanddrawnLive' },
+  { value: 'minimalist_product_ad', labelKey: 'nodes.minimax.option.sceneMinimalistProductAd' },
+  { value: 'music_video_subtitle', labelKey: 'nodes.minimax.option.sceneMusicVideoSubtitle' },
+  { value: 'paper_collage', labelKey: 'nodes.minimax.option.scenePaperCollage' },
+  { value: 'papercraft_stop_motion', labelKey: 'nodes.minimax.option.scenePapercraftStopMotion' },
 ];
 
 /**
@@ -87,7 +119,7 @@ export const SCENE_GUIDE_OPTIONS: Option[] = [
 export function withCurrentValue(options: Option[], value: unknown): Option[] {
   if (typeof value !== 'string' || !value) return options;
   if (options.some((option) => option.value === value)) return options;
-  return [...options, { value, label: value, description: 'Not offered by this server' }];
+  return [...options, { value, descriptionKey: 'nodes.common.notOfferedByServer' }];
 }
 
 export const SECONDS_MIN = 0.2;

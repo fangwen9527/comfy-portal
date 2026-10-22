@@ -4,6 +4,7 @@ import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
+import { useTranslation } from '@/i18n';
 import { saveWorkflowThumbnail } from '@/services/image-storage';
 import { showToast } from '@/utils/toast';
 import * as MediaLibrary from 'expo-media-library';
@@ -35,6 +36,7 @@ export const MediaActions = memo(function MediaActions({
   workflowId,
   serverId,
 }: MediaActionsProps) {
+  const { t } = useTranslation();
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
   const safeAreaInsets = useSafeAreaInsets();
 
@@ -43,7 +45,11 @@ export const MediaActions = memo(function MediaActions({
       if (!permissionResponse?.granted) {
         const { granted } = await requestPermission();
         if (!granted) {
-          showToast.error('Permission needed', 'Please grant permission to save media.', safeAreaInsets.top + 16);
+          showToast.error(
+            t('generation.toast.permissionNeeded.title'),
+            t('generation.toast.permissionNeeded.message'),
+            safeAreaInsets.top + 16,
+          );
           return;
         }
       }
@@ -51,11 +57,11 @@ export const MediaActions = memo(function MediaActions({
       if (mediaUrl) {
         await MediaLibrary.saveToLibraryAsync(mediaUrl);
         onClose();
-        showToast.success('Media saved to your gallery', undefined, safeAreaInsets.top + 16);
+        showToast.success(t('generation.toast.mediaSaved'), undefined, safeAreaInsets.top + 16);
       }
     } catch (error) {
       console.error('Failed to save media:', error);
-      showToast.error('Failed to save media', undefined, safeAreaInsets.top + 16);
+      showToast.error(t('generation.toast.mediaSaveFailed'), undefined, safeAreaInsets.top + 16);
     }
   };
 
@@ -76,11 +82,11 @@ export const MediaActions = memo(function MediaActions({
           thumbnail: localImageUri,
         });
 
-        showToast.success('Thumbnail updated', undefined, safeAreaInsets.top + 16);
+        showToast.success(t('generation.toast.thumbnailUpdated'), undefined, safeAreaInsets.top + 16);
       }
     } catch (error) {
       console.error('Failed to set thumbnail:', error);
-      showToast.error('Failed to set thumbnail', undefined, safeAreaInsets.top + 16);
+      showToast.error(t('generation.toast.thumbnailFailed'), undefined, safeAreaInsets.top + 16);
     }
     onClose();
   };
@@ -100,7 +106,7 @@ export const MediaActions = memo(function MediaActions({
               className="h-12 w-full justify-start border-background-100 px-4"
             >
               <Icon as={Save} size="sm" className="mr-2 text-primary-500" />
-              <Text className="text-sm text-primary-500">Save Media</Text>
+              <Text className="text-sm text-primary-500">{t('generation.media.saveMedia')}</Text>
             </Button>
             {workflowId && (
               <Button
@@ -110,7 +116,7 @@ export const MediaActions = memo(function MediaActions({
                 className="h-12 w-full justify-start border-background-100 px-4"
               >
                 <Icon as={ImageIcon} size="sm" className="mr-2 text-primary-500" />
-                <Text className="text-sm text-primary-500">Set as Workflow Thumbnail</Text>
+                <Text className="text-sm text-primary-500">{t('generation.media.setAsThumbnail')}</Text>
               </Button>
             )}
           </VStack>

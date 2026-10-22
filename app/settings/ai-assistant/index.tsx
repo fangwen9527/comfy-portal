@@ -28,6 +28,7 @@ import {
   refreshCatalog,
 } from '@/features/ai-assistant/model-catalog';
 import type { AIProviderType } from '@/features/ai-assistant/types';
+import { useTranslation } from '@/i18n';
 import { showToast } from '@/utils/toast';
 import { generateText } from 'ai';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -43,6 +44,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const CUSTOM_MODEL = '__custom__';
 
 export default function AIAssistantScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { provider, setProvider, customPrompt, setCustomPrompt } = useAIAssistantStore();
   const promptSheetRef = useRef<BottomSheetModal>(null);
@@ -73,17 +75,21 @@ export default function AIAssistantScreen() {
     try {
       const count = await refreshCatalog();
       setCatalogVersion((v) => v + 1);
-      showToast.success('Updated', `${count} models available`, insets.top + 8);
+      showToast.success(
+        t('settings.aiAssistant.updated'),
+        t('settings.aiAssistant.modelsAvailable', { count }),
+        insets.top + 8,
+      );
     } catch (error) {
       showToast.error(
-        'Failed',
-        error instanceof Error ? error.message : 'Could not reach models.dev',
+        t('settings.aiAssistant.failed'),
+        error instanceof Error ? error.message : t('settings.aiAssistant.catalogUnreachable'),
         insets.top + 8,
       );
     } finally {
       setIsRefreshingCatalog(false);
     }
-  }, [insets.top]);
+  }, [insets.top, t]);
 
   // A saved model id that isn't in the catalogue means the user typed it (or
   // the catalogue has moved on), so the custom field opens on its own.
@@ -118,22 +124,22 @@ export default function AIAssistantScreen() {
   const handleSavePrompt = useCallback(() => {
     setCustomPrompt(draftPrompt);
     promptSheetRef.current?.dismiss();
-    showToast.success('Saved', 'Custom prompt saved', insets.top + 8);
-  }, [draftPrompt, setCustomPrompt, insets.top]);
+    showToast.success(t('settings.aiAssistant.saved'), t('settings.aiAssistant.customPromptSaved'), insets.top + 8);
+  }, [draftPrompt, setCustomPrompt, insets.top, t]);
 
   const handleSaveProvider = () => {
     if (!isComplete) {
-      showToast.error('Error', 'Please fill in all required fields', insets.top + 8);
+      showToast.error(t('settings.aiAssistant.error'), t('settings.aiAssistant.requiredFields'), insets.top + 8);
       return;
     }
 
     setProvider(draftProvider());
-    showToast.success('Saved', 'API configuration saved', insets.top + 8);
+    showToast.success(t('settings.aiAssistant.saved'), t('settings.aiAssistant.apiConfigSaved'), insets.top + 8);
   };
 
   const handleTestConnection = async () => {
     if (!isComplete) {
-      showToast.error('Error', 'Please fill in all required fields', insets.top + 8);
+      showToast.error(t('settings.aiAssistant.error'), t('settings.aiAssistant.requiredFields'), insets.top + 8);
       return;
     }
 
@@ -163,7 +169,7 @@ export default function AIAssistantScreen() {
         usage: result.usage,
       });
       setTestResult('success');
-      showToast.success('Success', 'Connection test passed', insets.top + 8);
+      showToast.success(t('settings.aiAssistant.success'), t('settings.aiAssistant.connectionPassed'), insets.top + 8);
     } catch (error) {
       // The SDK wraps transport failures, so the useful detail is usually in
       // `cause` rather than the top-level message.
@@ -179,8 +185,8 @@ export default function AIAssistantScreen() {
       });
       setTestResult('error');
       showToast.error(
-        'Failed',
-        error instanceof Error ? error.message : 'Connection test failed',
+        t('settings.aiAssistant.failed'),
+        error instanceof Error ? error.message : t('settings.aiAssistant.connectionFailed'),
         insets.top + 8,
       );
     } finally {
@@ -190,7 +196,7 @@ export default function AIAssistantScreen() {
 
   return (
     <View className="flex-1 bg-background-0">
-      <AppBar title="AI Assistant" showBack />
+      <AppBar title={t('settings.aiAssistant.title')} showBack />
       <ScrollView className="flex-1">
         <VStack className="px-5 pb-8 pt-4" space="sm">
           {/*
@@ -200,7 +206,7 @@ export default function AIAssistantScreen() {
             the text in by another 16px.
           */}
           <View className="mb-2.5">
-            <Text className="mb-1 text-sm font-medium text-typography-600">Provider</Text>
+            <Text className="mb-1 text-sm font-medium text-typography-600">{t('settings.aiAssistant.provider')}</Text>
             <OptionSelector
               value={type}
               onChange={(next) => {
@@ -220,17 +226,17 @@ export default function AIAssistantScreen() {
                 icon: <ProviderLogo type={key} />,
                 description:
                   key === 'openai-compatible'
-                    ? 'Ollama, LM Studio, OpenRouter, or any custom endpoint'
+                    ? t('settings.aiAssistant.compatibleHint')
                     : undefined,
               }))}
-              title="Provider"
+              title={t('settings.aiAssistant.provider')}
               showSearch
             />
           </View>
 
           {needsEndpoint && (
             <FormInput
-              title="Endpoint URL"
+              title={t('settings.aiAssistant.endpointUrl')}
               placeholder="http://localhost:11434/v1"
               value={endpointUrl}
               onChangeText={setEndpointUrl}
@@ -240,7 +246,7 @@ export default function AIAssistantScreen() {
           )}
 
           <FormInput
-            title="API Key"
+            title={t('settings.aiAssistant.apiKey')}
             placeholder="sk-..."
             value={apiKey}
             onChangeText={setApiKey}
@@ -256,7 +262,7 @@ export default function AIAssistantScreen() {
           */}
           <View className="mb-2.5">
             <HStack className="mb-1 items-center justify-between">
-              <Text className="text-sm font-medium text-typography-600">Model</Text>
+              <Text className="text-sm font-medium text-typography-600">{t('settings.aiAssistant.model')}</Text>
               {catalogModels.length > 0 && (
                 <Pressable onPress={handleRefreshCatalog} disabled={isRefreshingCatalog}>
                   <HStack className="items-center" space="xs">
@@ -265,7 +271,7 @@ export default function AIAssistantScreen() {
                     ) : (
                       <Icon as={RefreshCw} size="xs" className="text-primary-500" />
                     )}
-                    <Text className="text-sm text-primary-500">Refresh</Text>
+                    <Text className="text-sm text-primary-500">{t('settings.aiAssistant.refresh')}</Text>
                   </HStack>
                 </Pressable>
               )}
@@ -288,19 +294,19 @@ export default function AIAssistantScreen() {
                   label: model.name,
                   description: [
                     model.id,
-                    model.context ? `${Math.round(model.context / 1000)}k ctx` : null,
-                    model.reasoning ? 'reasoning' : null,
+                    model.context ? t('settings.aiAssistant.contextShort', { n: Math.round(model.context / 1000) }) : null,
+                    model.reasoning ? t('settings.aiAssistant.reasoning') : null,
                   ]
                     .filter(Boolean)
                     .join(' · '),
                 })),
                 {
                   value: CUSTOM_MODEL,
-                  label: 'Custom…',
-                  description: 'Enter a model id manually',
+                  label: t('settings.aiAssistant.customModel'),
+                  description: t('settings.aiAssistant.customModelHint'),
                 },
               ]}
-              title="Select a model"
+              title={t('settings.aiAssistant.selectModel')}
               showSearch={catalogModels.length > 8}
             />
 
@@ -319,7 +325,10 @@ export default function AIAssistantScreen() {
 
             {catalogModels.length > 0 && (
               <Text className="mt-1 text-xs text-typography-400">
-                {catalogModels.length} tool-capable models as of {getCatalogDate()}.
+                {t('settings.aiAssistant.catalogSummary', {
+                  count: catalogModels.length,
+                  date: getCatalogDate(),
+                })}
               </Text>
             )}
           </View>
@@ -327,7 +336,7 @@ export default function AIAssistantScreen() {
           <View className="rounded-xl bg-background-50 p-3">
             {/* NumberSlider renders the value itself; a second copy in the
                 header just showed 0.7 twice. */}
-            <Text className="mb-2 text-sm font-medium text-typography-600">Temperature</Text>
+            <Text className="mb-2 text-sm font-medium text-typography-600">{t('settings.aiAssistant.temperature')}</Text>
             <NumberSlider
               value={temperature}
               minValue={0}
@@ -340,11 +349,11 @@ export default function AIAssistantScreen() {
 
           <View className="rounded-xl bg-background-50 p-3">
             <HStack className="mb-2 items-center justify-between">
-              <Text className="text-sm font-medium text-typography-600">Custom Prompt</Text>
+              <Text className="text-sm font-medium text-typography-600">{t('settings.aiAssistant.customPrompt')}</Text>
               <Pressable onPress={handleOpenPromptSheet}>
                 <HStack className="items-center" space="xs">
                   <Icon as={Pencil} size="xs" className="text-primary-500" />
-                  <Text className="text-sm text-primary-500">Edit</Text>
+                  <Text className="text-sm text-primary-500">{t('common.action.edit')}</Text>
                 </HStack>
               </Pressable>
             </HStack>
@@ -353,7 +362,7 @@ export default function AIAssistantScreen() {
                 className="text-sm text-typography-500"
                 numberOfLines={3}
               >
-                {customPrompt || 'Tap to add custom instructions that will be injected into the system prompt...'}
+                {customPrompt || t('settings.aiAssistant.customPromptEmpty')}
               </Text>
             </Pressable>
           </View>
@@ -372,7 +381,7 @@ export default function AIAssistantScreen() {
               ) : testResult === 'error' ? (
                 <ButtonIcon as={CircleX} className="text-error-500" />
               ) : null}
-              <ButtonText>Test</ButtonText>
+              <ButtonText>{t('settings.aiAssistant.test')}</ButtonText>
             </Button>
             <Button
               variant="solid"
@@ -380,7 +389,7 @@ export default function AIAssistantScreen() {
               onPress={handleSaveProvider}
               className="flex-1 rounded-lg"
             >
-              <ButtonText>Save</ButtonText>
+              <ButtonText>{t('common.action.save')}</ButtonText>
             </Button>
           </HStack>
         </VStack>
@@ -397,18 +406,18 @@ export default function AIAssistantScreen() {
               <Pressable onPress={() => promptSheetRef.current?.dismiss()}>
                 <Icon as={X} size="md" className="text-typography-500" />
               </Pressable>
-              <Text className="text-base font-semibold text-typography-900">Custom Prompt</Text>
+              <Text className="text-base font-semibold text-typography-900">{t('settings.aiAssistant.customPrompt')}</Text>
               <Pressable onPress={handleSavePrompt}>
-                <Text className="text-sm font-medium text-primary-500">Save</Text>
+                <Text className="text-sm font-medium text-primary-500">{t('common.action.save')}</Text>
               </Pressable>
             </HStack>
 
             <Text className="text-xs text-typography-500">
-              Custom instructions injected into the AI system prompt. Use this to guide the AI's style, language, or focus.
+              {t('settings.aiAssistant.customPromptDescription')}
             </Text>
 
             <StyledTextarea
-              placeholder="e.g. Always use anime style, prefer warm lighting, output in Japanese..."
+              placeholder={t('settings.aiAssistant.customPromptPlaceholder')}
               value={draftPrompt}
               onChangeText={setDraftPrompt}
               minHeight={200}

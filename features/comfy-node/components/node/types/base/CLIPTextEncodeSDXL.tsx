@@ -8,6 +8,7 @@ import {
 } from '@/features/ai-assistant/components/prompt-editor-modal';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import { Maximize2 } from 'lucide-react-native';
 import { useCallback, useRef } from 'react';
 import BaseNode from '../../common/base-node';
@@ -20,6 +21,7 @@ interface CLIPTextEncodeSDXLNodeProps {
 }
 
 export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPTextEncodeSDXLNodeProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   const promptEditorRef = useRef<PromptEditorModalRef>(null);
 
@@ -36,7 +38,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
 
   return (
     <BaseNode node={node}>
-      <SubItem title="width" node={node} dependencies={['width']}>
+      <SubItem title={t('nodes.fields.width')} node={node} dependencies={['width']}>
         <NumberInput
           value={node.inputs.width}
           onChange={(value) => {
@@ -47,7 +49,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
           step={1}
         />
       </SubItem>
-      <SubItem title="height" node={node} dependencies={['height']}>
+      <SubItem title={t('nodes.fields.height')} node={node} dependencies={['height']}>
         <NumberInput
           value={node.inputs.height}
           onChange={(value) => {
@@ -58,7 +60,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
           step={1}
         />
       </SubItem>
-      <SubItem title="crop_w" node={node} dependencies={['crop_w']}>
+      <SubItem title={t('nodes.fields.cropWidth')} node={node} dependencies={['crop_w']}>
         <NumberInput
           value={node.inputs.crop_w}
           onChange={(value) => {
@@ -69,7 +71,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
           step={1}
         />
       </SubItem>
-      <SubItem title="crop_h" node={node} dependencies={['crop_h']}>
+      <SubItem title={t('nodes.fields.cropHeight')} node={node} dependencies={['crop_h']}>
         <NumberInput
           value={node.inputs.crop_h}
           onChange={(value) => {
@@ -80,7 +82,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
           step={1}
         />
       </SubItem>
-      <SubItem title="target_width" node={node} dependencies={['target_width']}>
+      <SubItem title={t('nodes.fields.targetWidth')} node={node} dependencies={['target_width']}>
         <NumberInput
           value={node.inputs.target_width}
           onChange={(value) => {
@@ -91,7 +93,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
           step={1}
         />
       </SubItem>
-      <SubItem title="target_height" node={node} dependencies={['target_height']}>
+      <SubItem title={t('nodes.fields.targetHeight')} node={node} dependencies={['target_height']}>
         <NumberInput
           value={node.inputs.target_height}
           onChange={(value) => {
@@ -103,11 +105,11 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
         />
       </SubItem>
       <SubItem
-        title="text_g"
+        title={t('nodes.fields.textG')}
         node={node}
         dependencies={['text_g']}
         rightComponent={
-          <Pressable onPress={() => handleOpenEditor('text_g', 'Edit Prompt (G)')} className="p-1">
+          <Pressable onPress={() => handleOpenEditor('text_g', t('nodes.clipTextEncodeSdxl.promptG'))} className="p-1">
             <Icon as={Maximize2} size="sm" className="text-typography-500" />
           </Pressable>
         }
@@ -117,16 +119,16 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
             value={node.inputs?.text_g || ''}
             onChangeText={(text) => updateNodeInput(workflowId, node.id, 'text_g', text)}
             size="sm"
-            placeholder="Your text goes here..."
+            placeholder={t('nodes.clipTextEncodeSdxl.placeholder')}
           />
         </Textarea>
       </SubItem>
       <SubItem
-        title="text_l"
+        title={t('nodes.fields.textL')}
         node={node}
         dependencies={['text_l']}
         rightComponent={
-          <Pressable onPress={() => handleOpenEditor('text_l', 'Edit Prompt (L)')} className="p-1">
+          <Pressable onPress={() => handleOpenEditor('text_l', t('nodes.clipTextEncodeSdxl.promptL'))} className="p-1">
             <Icon as={Maximize2} size="sm" className="text-typography-500" />
           </Pressable>
         }
@@ -136,7 +138,7 @@ export default function CLIPTextEncodeSDXL({ node, serverId, workflowId }: CLIPT
             value={node.inputs?.text_l || ''}
             onChangeText={(text) => updateNodeInput(workflowId, node.id, 'text_l', text)}
             size="sm"
-            placeholder="Your text goes here..."
+            placeholder={t('nodes.clipTextEncodeSdxl.placeholder')}
           />
         </Textarea>
       </SubItem>

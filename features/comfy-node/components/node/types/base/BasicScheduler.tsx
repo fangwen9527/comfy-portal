@@ -2,6 +2,7 @@ import { SchedulerSelector } from '@/components/common/selectors/scheduler';
 import { NumberSlider } from '@/components/self-ui/slider';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -12,10 +13,11 @@ interface BasicSchedulerProps {
 }
 
 export default function BasicScheduler({ node, serverId, workflowId }: BasicSchedulerProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="scheduler" node={node} dependencies={['scheduler']}>
+      <SubItem title={t('nodes.fields.scheduler')} node={node} dependencies={['scheduler']}>
         <SchedulerSelector
           value={node.inputs.scheduler}
           onChange={(value) => {
@@ -23,7 +25,7 @@ export default function BasicScheduler({ node, serverId, workflowId }: BasicSche
           }}
         />
       </SubItem>
-      <SubItem title="steps" node={node} dependencies={['steps']}>
+      <SubItem title={t('nodes.fields.steps')} node={node} dependencies={['steps']}>
         <NumberSlider
           value={node.inputs.steps}
           minValue={1}
@@ -34,7 +36,7 @@ export default function BasicScheduler({ node, serverId, workflowId }: BasicSche
           decimalPlaces={0}
         />
       </SubItem>
-      <SubItem title="denoise" node={node} dependencies={['denoise']}>
+      <SubItem title={t('nodes.fields.denoise')} node={node} dependencies={['denoise']}>
         <NumberSlider
           value={node.inputs.denoise}
           minValue={0}

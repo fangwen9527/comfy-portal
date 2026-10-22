@@ -7,6 +7,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useServersStore } from '@/features/server/stores/server-store';
+import { useTranslation } from '@/i18n';
 import { buildServerUrl } from '@/services/network';
 import { clearNodeSchemaCache, getNodeSchema } from '@/services/node-schema';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -45,6 +46,7 @@ export const ServerImagePicker = forwardRef<BottomSheetModal, ServerImagePickerP
     { serverId, classType, inputName, value, isVisible, onClose, onSelect },
     ref,
   ) {
+    const { t } = useTranslation();
     const server = useServersStore((state) => state.servers.find((s) => s.id === serverId));
     // null while we haven't got an answer yet — an empty array is a real answer
     // ("this server has no images") and has to read differently.
@@ -160,15 +162,13 @@ export const ServerImagePicker = forwardRef<BottomSheetModal, ServerImagePickerP
       files === null ? (
         <VStack space="md" className="flex-1 items-center justify-center p-8">
           <Spinner size="small" className="text-background-400" />
-          <Text className="text-sm text-typography-400">Reading the server&apos;s images…</Text>
+          <Text className="text-sm text-typography-400">{t('nodes.serverImages.loading')}</Text>
         </VStack>
       ) : (
         <VStack space="md" className="flex-1 items-center justify-center p-8">
           <Icon as={failed ? WifiOff : ImageOff} className="h-8 w-8 text-typography-300" />
           <Text className="text-center text-sm text-typography-400">
-            {failed
-              ? 'Could not reach the server to read its images. Check that it is online, then refresh.'
-              : 'No images in this server’s input folder yet. Anything you upload shows up here afterwards.'}
+            {failed ? t('nodes.serverImages.loadFailed') : t('nodes.serverImages.empty')}
           </Text>
         </VStack>
       );
@@ -179,10 +179,10 @@ export const ServerImagePicker = forwardRef<BottomSheetModal, ServerImagePickerP
         isVisible={isVisible}
         onClose={onClose}
         onSelect={onSelect}
-        title="Server Images"
+        title={t('nodes.serverImages.title')}
         options={options}
         value={value}
-        searchPlaceholder="Search images..."
+        searchPlaceholder={t('nodes.serverImages.searchPlaceholder')}
         showRefreshButton
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}

@@ -12,6 +12,7 @@ import {
 } from '@/features/ai-assistant/tools/workflow-tools';
 import { WorkflowHistory } from '@/features/ai-assistant/tools/workflow-history';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
+import { useTranslation } from '@/i18n';
 import { useChat } from '@ai-sdk/react';
 import { APICallError, DirectChatTransport, ToolLoopAgent, isStepCount, type UIMessage } from 'ai';
 import { AlertTriangle, Bot, Settings } from 'lucide-react-native';
@@ -259,23 +260,23 @@ export const AIChatTab = forwardRef<AIChatTabRef, AIChatTabProps>(
 AIChatTab.displayName = 'AIChatTab';
 
 function EmptyStateView() {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-1 items-center justify-center py-12">
       <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-primary-50">
         <Icon as={Bot} size="lg" className="text-primary-400" />
       </View>
-      <Text className="text-center text-sm font-medium text-typography-700">
-        How can I help?
-      </Text>
-      <Text className="mt-1 text-center text-xs text-typography-400">
-        Ask me to adjust prompts, tweak parameters,{'\n'}or optimize your workflow.
-      </Text>
+      <Text className="text-center text-sm font-medium text-typography-700">{t('assistant.chat.emptyTitle')}</Text>
+      <Text className="mt-1 text-center text-xs text-typography-400">{t('assistant.chat.emptyDescription')}</Text>
     </View>
   );
 }
 
 function NotConfiguredView() {
+  const { t } = useTranslation();
   const router = useRouter();
+
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
       <View className="w-full rounded-2xl bg-warning-50 px-5 py-6">
@@ -284,17 +285,17 @@ function NotConfiguredView() {
             <Icon as={AlertTriangle} size="md" className="text-warning-600" />
           </View>
           <Text className="text-center text-base font-semibold text-typography-900">
-            AI Not Configured
+            {t('assistant.notConfigured.title')}
           </Text>
           <Text className="mt-1 text-center text-sm text-typography-600">
-            Set up your API provider to use the AI Agent.
+            {t('assistant.notConfigured.description')}
           </Text>
           <Pressable
             onPress={() => router.push('/settings/ai-assistant')}
             className="mt-4 flex-row items-center gap-2 rounded-xl bg-typography-900 px-5 py-2.5 active:opacity-80"
           >
             <Icon as={Settings} size="sm" className="text-typography-0" />
-            <Text className="text-sm font-semibold text-typography-0">Open Settings</Text>
+            <Text className="text-sm font-semibold text-typography-0">{t('assistant.notConfigured.openSettings')}</Text>
           </Pressable>
         </View>
       </View>
@@ -309,6 +310,8 @@ function ErrorNotice({
   error: Error;
   onOpenSettings?: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View className="mb-3 rounded-2xl bg-error-50 px-4 py-3">
       <Text className="text-sm text-error-700">{error.message}</Text>
@@ -318,7 +321,7 @@ function ErrorNotice({
           className="mt-2 flex-row items-center gap-1.5 self-start rounded-lg bg-warning-100 px-3 py-2 active:opacity-80"
         >
           <Icon as={Settings} size="xs" className="text-warning-700" />
-          <Text className="text-xs font-semibold text-warning-700">Check AI Configuration</Text>
+          <Text className="text-xs font-semibold text-warning-700">{t('assistant.chat.checkConfig')}</Text>
         </Pressable>
       )}
     </View>
@@ -326,6 +329,8 @@ function ErrorNotice({
 }
 
 function TypingIndicator() {
+  const { t } = useTranslation();
+
   return (
     <View className="mb-3 flex-row items-center gap-2">
       <View className="h-7 w-7 items-center justify-center rounded-full bg-primary-100">
@@ -333,7 +338,7 @@ function TypingIndicator() {
       </View>
       <View className="flex-row items-center gap-2 rounded-2xl rounded-bl-md bg-background-100 px-4 py-3">
         <RotatingSpinner size="sm" />
-        <Text className="text-xs text-typography-500">Thinking...</Text>
+        <Text className="text-xs text-typography-500">{t('assistant.chat.thinking')}</Text>
       </View>
     </View>
   );

@@ -1,4 +1,5 @@
 import { Workflow } from '@/features/workflow/types';
+import { t } from '@/i18n';
 import { generateUUID } from '@/utils/uuid';
 import { Directory, File, Paths } from 'expo-file-system';
 
@@ -40,7 +41,7 @@ export async function saveGeneratedMedia({
 
     if (shouldDelete) {
       const filename = mediaUrl.split('/').pop()?.split('?')[0];
-      if (!filename) throw new Error('Invalid media URL');
+      if (!filename) throw new Error(t('common.error.invalidMediaUrl'));
 
       new File(generatedDir, filename).delete();
       try {

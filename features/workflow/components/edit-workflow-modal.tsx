@@ -9,6 +9,7 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { Colors } from '@/constants/Colors';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
+import { useTranslation } from '@/i18n';
 import { saveWorkflowThumbnail } from '@/services/image-storage';
 import { useResolvedTheme } from '@/store/theme';
 import { showToast } from '@/utils/toast';
@@ -25,6 +26,7 @@ interface EditWorkflowModalProps {
 }
 
 export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowModalProps) {
+  const { t } = useTranslation();
   const workflow = useWorkflowStore((state) => state.workflow.find((p) => p.id === workflowId));
   const removeWorkflow = useWorkflowStore((state) => state.removeWorkflow);
   const [name, setName] = useState(workflow?.name || '');
@@ -47,15 +49,15 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
   useEffect(() => {
     if (name.trim().length > 50) {
       setName(name.slice(0, 50));
-      showToast.error('Name must be less than 50 characters', undefined, insets.top + 8);
+      showToast.error(t('workflow.nameTooLong', { count: 50 }), undefined, insets.top + 8);
     }
-  }, [insets.top, name]);
+  }, [insets.top, name, t]);
 
   if (!workflow) return null;
 
   const handleUpdate = async () => {
     if (!name.trim()) {
-      setError('Name is required');
+      setError(t('workflow.nameRequired'));
       return;
     }
 
@@ -87,7 +89,7 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
+      alert(t('workflow.photoPermission'));
       return;
     }
 
@@ -113,7 +115,7 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
         }
       } catch (error) {
         console.error('Failed to save thumbnail:', error);
-        alert('Failed to save image. Please try again.');
+        alert(t('workflow.saveImageFailed'));
       }
     }
   };
@@ -136,7 +138,7 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
       <KeyboardModal isOpen={isOpen} onClose={handleClose}>
         <KeyboardModal.Header>
           <HStack className="w-full items-center justify-between">
-            <Text className="text-lg font-semibold text-primary-500">Edit Workflow</Text>
+            <Text className="text-lg font-semibold text-primary-500">{t('workflow.editModal.title')}</Text>
             <Pressable onPress={handleClose} className="p-1 active:opacity-60">
               <X size={20} color={Colors[activeTheme].primary[500]} />
             </Pressable>
@@ -145,7 +147,7 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
 
         <KeyboardModal.Body scrollEnabled={false}>
           <VStack space="md">
-            <KeyboardModal.Item title="Name" error={error}>
+            <KeyboardModal.Item title={t('workflow.nameLabel')} error={error}>
               <Input variant="outline" size="md" className="mt-1 overflow-hidden rounded-md border-0 bg-background-0">
                 <InputField
                   onChangeText={(value) => {
@@ -153,26 +155,26 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
                     setError('');
                   }}
                   defaultValue={name}
-                  placeholder="Enter workflow name"
+                  placeholder={t('workflow.namePlaceholder')}
                   className="px-3 py-2 text-sm text-primary-500"
                 />
               </Input>
             </KeyboardModal.Item>
 
             <VStack space="xs">
-              <Text className="text-sm font-medium text-primary-400">Thumbnail (Optional)</Text>
+              <Text className="text-sm font-medium text-primary-400">{t('workflow.thumbnailOptional')}</Text>
               <Pressable onPress={handleSelectImage} className="overflow-hidden rounded-md border-0 bg-background-0">
                 {thumbnail ? (
                   <Image
                     source={{ uri: thumbnail }}
                     className="h-40 w-full"
                     resizeMode="cover"
-                    alt="Workflow thumbnail"
+                    alt={t('workflow.thumbnailAlt')}
                   />
                 ) : (
                   <VStack className="h-40 items-center justify-center">
                     <ImagePlus className="text-primary-300" />
-                    <Text className="mt-2 text-sm text-primary-300">Add thumbnail</Text>
+                    <Text className="mt-2 text-sm text-primary-300">{t('workflow.addThumbnail')}</Text>
                   </VStack>
                 )}
               </Pressable>
@@ -188,10 +190,10 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
               className="flex-1 rounded-md bg-transparent active:bg-error-50"
               style={{ borderColor: Colors[activeTheme].error[500] }}
             >
-              <ButtonText style={{ color: Colors[activeTheme].error[500] }}>Delete</ButtonText>
+              <ButtonText style={{ color: Colors[activeTheme].error[500] }}>{t('common.action.delete')}</ButtonText>
             </Button>
             <Button variant="solid" onPress={handleUpdate} className="flex-1 rounded-md bg-primary-500">
-              <ButtonText className="text-background-0">Save Changes</ButtonText>
+              <ButtonText className="text-background-0">{t('workflow.saveChanges')}</ButtonText>
             </Button>
           </HStack>
         </KeyboardModal.Footer>
@@ -201,9 +203,9 @@ export function EditWorkflowModal({ isOpen, onClose, workflowId }: EditWorkflowM
         isOpen={isDeleteAlertOpen}
         onClose={() => setIsDeleteAlertOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Workflow"
-        description="Are you sure you want to delete this workflow? This action cannot be undone."
-        confirmText="Delete"
+        title={t('workflow.deleteTitle')}
+        description={t('workflow.deleteDescription')}
+        confirmText={t('common.action.delete')}
         confirmButtonColor="bg-error-500"
       />
     </>

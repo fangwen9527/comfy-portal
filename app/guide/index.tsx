@@ -4,33 +4,47 @@ import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import React, { useState } from 'react';
+import { useTranslation } from '@/i18n';
+import { docsUrl } from '@/utils/docs-url';
+import React, { useMemo, useState } from 'react';
 import { View, useWindowDimensions } from 'react-native';
 import { SceneMap, TabView } from 'react-native-tab-view';
 
-const LocalServerGuide = () => (
-  <WebViewPage
-    uri="https://shunl12324.github.io/comfy-portal/guide/local-server"
-    loadingTitle="Loading Local Server Guide..."
-    slowLoadingTitle="Local Server Guide is taking longer than expected"
-  />
-);
+const LocalServerGuide = () => {
+  const { t, locale } = useTranslation();
 
-const RemoteServerGuide = () => (
-  <WebViewPage
-    uri="https://shunl12324.github.io/comfy-portal/guide/remote-server"
-    loadingTitle="Loading Remote Server Guide..."
-    slowLoadingTitle="Remote Server Guide is taking longer than expected"
-  />
-);
+  return (
+    <WebViewPage
+      uri={docsUrl('/guide/local-server', locale)}
+      loadingTitle={t('app.guide.loadingTitle', { name: t('app.guide.tab.localServer') })}
+      slowLoadingTitle={t('app.guide.slowLoadingTitle', { name: t('app.guide.tab.localServer') })}
+    />
+  );
+};
 
-const RunPodServerGuide = () => (
-  <WebViewPage
-    uri="https://shunl12324.github.io/comfy-portal/guide/remote-server-runpod"
-    loadingTitle="Loading RunPod Server Guide..."
-    slowLoadingTitle="RunPod Server Guide is taking longer than expected"
-  />
-);
+const RemoteServerGuide = () => {
+  const { t, locale } = useTranslation();
+
+  return (
+    <WebViewPage
+      uri={docsUrl('/guide/remote-server', locale)}
+      loadingTitle={t('app.guide.loadingTitle', { name: t('app.guide.tab.remoteServer') })}
+      slowLoadingTitle={t('app.guide.slowLoadingTitle', { name: t('app.guide.tab.remoteServer') })}
+    />
+  );
+};
+
+const RunPodServerGuide = () => {
+  const { t, locale } = useTranslation();
+
+  return (
+    <WebViewPage
+      uri={docsUrl('/guide/remote-server-runpod', locale)}
+      loadingTitle={t('app.guide.loadingTitle', { name: t('app.guide.tab.runpod') })}
+      slowLoadingTitle={t('app.guide.slowLoadingTitle', { name: t('app.guide.tab.runpod') })}
+    />
+  );
+};
 
 const renderScene = SceneMap({
   local: LocalServerGuide,
@@ -40,17 +54,21 @@ const renderScene = SceneMap({
 
 export default function GuideScreen() {
   const layout = useWindowDimensions();
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: 'local', title: 'Local Server' },
-    { key: 'remote', title: 'Remote Server' },
-    { key: 'runpod', title: 'RunPod Server' },
-  ]);
+  const routes = useMemo(
+    () => [
+      { key: 'local', title: t('app.guide.tab.localServer') },
+      { key: 'remote', title: t('app.guide.tab.remoteServer') },
+      { key: 'runpod', title: t('app.guide.tab.runpod') },
+    ],
+    [t],
+  );
 
   const renderTabBar = (props: any) => {
     return (
       <VStack className="bg-background-0">
-        <AppBar title="ComfyUI Server Setup" showBack />
+        <AppBar title={t('app.guide.title')} showBack />
         <HStack className="border-b border-outline-200 px-5">
           {props.navigationState.routes.map((route: any, i: number) => {
             const isActive = index === i;

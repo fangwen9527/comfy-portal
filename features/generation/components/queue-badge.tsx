@@ -6,6 +6,7 @@ import {
   useGenerationActions,
   useGenerationStatus,
 } from '@/features/generation/context/generation-context';
+import { useTranslation } from '@/i18n';
 import { QueueItem } from '@/services/comfy-client';
 import { Clock, Trash2, X } from 'lucide-react-native';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -33,6 +34,7 @@ function parseQueueItems(
 }
 
 export const QueueBadge = memo(() => {
+  const { t } = useTranslation();
   const { queueRemaining } = useGenerationStatus();
   const { getQueue, deleteQueueItems, clearQueue, cancel } =
     useGenerationActions();
@@ -128,18 +130,14 @@ export const QueueBadge = memo(() => {
         <BottomSheetView style={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 16 }}>
           {/* Header */}
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-sm font-semibold text-typography-900">
-              Queue
-            </Text>
+            <Text className="text-sm font-semibold text-typography-900">{t('generation.queue.title')}</Text>
             {items.length > 0 && (
               <Pressable
                 onPress={handleClearAll}
                 className="flex-row items-center gap-1 rounded-lg px-2 py-1 active:bg-background-100"
               >
                 <Icon as={Trash2} size="2xs" className="text-error-500" />
-                <Text className="text-xs font-medium text-error-500">
-                  Clear All
-                </Text>
+                <Text className="text-xs font-medium text-error-500">{t('generation.queue.clearAll')}</Text>
               </Pressable>
             )}
           </View>
@@ -151,9 +149,7 @@ export const QueueBadge = memo(() => {
             </View>
           ) : items.length === 0 ? (
             <View className="items-center py-6">
-              <Text className="text-sm text-typography-400">
-                Queue is empty
-              </Text>
+              <Text className="text-sm text-typography-400">{t('generation.queue.empty')}</Text>
             </View>
           ) : (
             items.map((item) => (
@@ -179,6 +175,8 @@ function QueueRow({
   item: ParsedQueueItem;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <View className="mb-1.5 flex-row items-center justify-between rounded-xl bg-background-50 px-4 py-3">
       <View className="flex-1 flex-row items-center gap-3">
@@ -195,7 +193,7 @@ function QueueRow({
             {item.promptId.slice(0, 8)}...
           </Text>
           <Text className="text-xs text-typography-400">
-            {item.isRunning ? 'Running' : 'Pending'}
+            {item.isRunning ? t('generation.queue.running') : t('generation.queue.pending')}
           </Text>
         </View>
       </View>

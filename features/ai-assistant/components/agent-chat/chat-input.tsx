@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/icon';
 import { AdaptiveTextInput } from '@/components/self-ui/adaptive-sheet-components';
 import { Colors } from '@/constants/Colors';
+import { useTranslation } from '@/i18n';
 import { useResolvedTheme } from '@/store/theme';
 import { Send, Square } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
@@ -19,8 +20,9 @@ export function ChatInput({
   onSend,
   isBusy = false,
   onStop,
-  placeholder = 'Ask AI to adjust parameters...',
+  placeholder,
 }: ChatInputProps) {
+  const { t } = useTranslation();
   const [text, setText] = useState('');
   const theme = useResolvedTheme();
   const isDark = theme === 'dark';
@@ -51,7 +53,7 @@ export function ChatInput({
             paddingRight: 8,
             color: isDark ? Colors.dark.typography[900] : Colors.light.typography[900],
           }}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t('assistant.chat.inputPlaceholder')}
           placeholderTextColor={isDark ? Colors.dark.typography[400] : Colors.light.typography[400]}
           value={text}
           onChangeText={setText}

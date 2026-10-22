@@ -15,6 +15,7 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { EditWorkflowModal } from '@/features/workflow/components/edit-workflow-modal';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
+import { useTranslation } from '@/i18n';
 import { formatDateToYYYYMMDD } from '@/utils/date';
 import { useRouter } from 'expo-router';
 import { ImageIcon, Settings2 } from 'lucide-react-native';
@@ -26,6 +27,7 @@ interface WorkflowCardProps {
 }
 
 export const WorkflowCard = ({ id }: WorkflowCardProps) => {
+  const { t } = useTranslation();
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = React.useState(false);
   const removeWorkflow = useWorkflowStore((state) => state.removeWorkflow);
@@ -52,7 +54,7 @@ export const WorkflowCard = ({ id }: WorkflowCardProps) => {
             <Image
               source={{ uri: workflowRecord?.thumbnail }}
               className="w-full flex-1"
-              alt={workflowRecord.name || 'Workflow thumbnail'}
+              alt={workflowRecord.name || t('workflow.thumbnailAlt')}
               onError={(error) => {
                 console.error('[WorkflowCard] Failed to load thumbnail:', error.nativeEvent.error);
                 if (error.nativeEvent.error.includes('no such file')) {
@@ -75,11 +77,13 @@ export const WorkflowCard = ({ id }: WorkflowCardProps) => {
 
           <VStack className="mt-2 space-y-1">
             <Text className="text-xs text-typography-500">
-              Last used: {workflowRecord.lastUsed ? formatDateToYYYYMMDD(workflowRecord.lastUsed) : 'Never'}
+              {t('workflow.lastUsed', {
+                date: workflowRecord.lastUsed ? formatDateToYYYYMMDD(workflowRecord.lastUsed) : t('workflow.never'),
+              })}
             </Text>
             {workflowRecord.addMethod === 'server-sync' && workflowRecord.metadata?.originalFilename && (
               <Text className="text-xs text-typography-400" numberOfLines={1}>
-                Path: {String(workflowRecord.metadata.originalFilename)}
+                {t('workflow.filePath', { path: String(workflowRecord.metadata.originalFilename) })}
               </Text>
             )}
           </VStack>
@@ -104,12 +108,12 @@ export const WorkflowCard = ({ id }: WorkflowCardProps) => {
         <AlertDialogContent className="max-w-md overflow-hidden rounded-xl border-0 bg-background-200">
           <AlertDialogHeader className="px-0">
             <Heading size="sm" className="text-typography-950">
-              Delete Workflow
+              {t('workflow.deleteTitle')}
             </Heading>
           </AlertDialogHeader>
           <AlertDialogBody className="px-0 py-4">
             <Text className="text-sm text-typography-400">
-              Are you sure you want to delete this workflow? This action cannot be undone.
+              {t('workflow.deleteDescription')}
             </Text>
           </AlertDialogBody>
           <AlertDialogFooter className="px-0">
@@ -119,14 +123,14 @@ export const WorkflowCard = ({ id }: WorkflowCardProps) => {
                 onPress={() => setIsDeleteAlertOpen(false)}
                 className="flex-1 rounded-md bg-background-100"
               >
-                <ButtonText className="text-sm text-typography-400">Cancel</ButtonText>
+                <ButtonText className="text-sm text-typography-400">{t('common.action.cancel')}</ButtonText>
               </Button>
               <Button
                 variant="solid"
                 onPress={handleDelete}
                 className="flex-1 rounded-md bg-error-500 active:bg-error-600"
               >
-                <ButtonText className="text-sm text-typography-900">Delete</ButtonText>
+                <ButtonText className="text-sm text-typography-900">{t('common.action.delete')}</ButtonText>
               </Button>
             </HStack>
           </AlertDialogFooter>

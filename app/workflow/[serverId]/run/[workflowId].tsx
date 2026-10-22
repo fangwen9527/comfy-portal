@@ -10,6 +10,7 @@ import { VStack } from '@/components/ui/vstack';
 
 import { useServersStore } from '@/features/server/stores/server-store';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
+import { useTranslation } from '@/i18n';
 
 import { AppBar } from '@/components/layout/app-bar';
 import { SheetTabToggle } from '@/components/self-ui/sheet-tab-toggle';
@@ -48,6 +49,7 @@ function NodesTabContent({
   targetNodeId?: string;
   sharedImageUri?: string;
 }) {
+  const { t } = useTranslation();
   const scrollRef = useRef<any>(null);
   const nodePositions = useRef<Record<string, number>>({});
   const hasScrolled = useRef(false);
@@ -112,7 +114,7 @@ function NodesTabContent({
           <AdaptiveTextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search nodes..."
+            placeholder={t('app.run.searchNodes')}
             placeholderTextColor={theme === 'light' ? Colors.light.typography[400] : Colors.dark.typography[400]}
             style={{
               flex: 1,
@@ -142,6 +144,7 @@ function RunWorkflowScreenContent() {
     sharedImageUri?: string;
     targetNodeId?: string;
   }>();
+  const { t } = useTranslation();
   const router = useRouter();
   const theme = useResolvedTheme();
   const server = useServersStore((state) => state.servers.find((s) => s.id === serverId));
@@ -234,11 +237,9 @@ function RunWorkflowScreenContent() {
         </View>
         <VStack className="items-center" space="xs">
           <Text className="text-center text-base font-semibold text-typography-800">
-            Server Not Found
+            {t('app.workflows.serverNotFound')}
           </Text>
-          <Text className="text-center text-sm text-typography-500">
-            Please check your server list and try again.
-          </Text>
+          <Text className="text-center text-sm text-typography-500">{t('app.run.serverNotFoundDescription')}</Text>
         </VStack>
       </VStack>
     );

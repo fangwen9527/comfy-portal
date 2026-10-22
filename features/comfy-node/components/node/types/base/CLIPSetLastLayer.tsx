@@ -1,6 +1,7 @@
 import { NumberInput } from '@/components/self-ui/number-input';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -11,10 +12,11 @@ interface CLIPSetLastLayerProps {
 }
 
 export default function CLIPSetLastLayer({ node, serverId, workflowId }: CLIPSetLastLayerProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
   return (
     <BaseNode node={node}>
-      <SubItem title="CLIP Set Last Layer">
+      <SubItem title={t('nodes.fields.clipSetLastLayer')}>
         <NumberInput
           value={node.inputs.stop_at_clip_layer}
           onChange={(value) => {

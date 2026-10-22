@@ -4,6 +4,7 @@ import Switch from '@/components/self-ui/switch';
 import { Input, InputField } from '@/components/ui/input';
 import { useWorkflowStore } from '@/features/workflow/stores/workflow-store';
 import { Node } from '@/features/workflow/types';
+import { useTranslation } from '@/i18n';
 import BaseNode from '../../common/base-node';
 import SubItem from '../../common/sub-item';
 
@@ -14,6 +15,7 @@ interface VHS_VideoCombineProps {
 }
 
 export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineProps) {
+  const { t } = useTranslation();
   const updateNodeInput = useWorkflowStore((state) => state.updateNodeInput);
 
   const formatOptions = [
@@ -40,7 +42,7 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
 
   return (
     <BaseNode node={node}>
-      <SubItem title="Frame Rate">
+      <SubItem title={t('nodes.fields.frameRate')}>
         <NumberSlider
           value={node.inputs.frame_rate}
           minValue={1}
@@ -50,42 +52,42 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
           space={12}
         />
       </SubItem>
-      <SubItem title="Loop Count">
+      <SubItem title={t('nodes.fields.loopCount')}>
         <Input className="flex-1 rounded-md border-0 bg-background-50" variant="outline" size="sm">
           <InputField
-            placeholder="Loop Count"
+            placeholder={t('nodes.fields.loopCount')}
             keyboardType="numeric"
             value={node.inputs.loop_count?.toString()}
             onChangeText={(text) => updateNodeInput(workflowId, node.id, 'loop_count', Number(text))}
           />
         </Input>
       </SubItem>
-      <SubItem title="Filename Prefix">
+      <SubItem title={t('nodes.fields.filenamePrefix')}>
         <Input className="flex-1 rounded-md border-0 bg-background-50" variant="outline" size="sm">
           <InputField
-            placeholder="Filename Prefix"
+            placeholder={t('nodes.fields.filenamePrefix')}
             value={node.inputs.filename_prefix}
             onChangeText={(text) => updateNodeInput(workflowId, node.id, 'filename_prefix', text)}
           />
         </Input>
       </SubItem>
-      <SubItem title="Format">
+      <SubItem title={t('nodes.fields.format')}>
         <OptionSelector
           value={node.inputs.format}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'format', value)}
           options={formatOptions}
-          title="Select Format"
+          title={t('nodes.selectors.format')}
         />
       </SubItem>
-      <SubItem title="Pixel Format">
+      <SubItem title={t('nodes.fields.pixelFormat')}>
         <OptionSelector
           value={node.inputs.pix_fmt}
           onChange={(value) => updateNodeInput(workflowId, node.id, 'pix_fmt', value)}
           options={pixFmtOptions}
-          title="Select Pixel Format"
+          title={t('nodes.selectors.pixelFormat')}
         />
       </SubItem>
-      <SubItem title="CRF">
+      <SubItem title={t('nodes.fields.crf')}>
         <NumberSlider
           value={node.inputs.crf}
           minValue={0}
@@ -95,7 +97,7 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
           space={12}
         />
       </SubItem>
-      <SubItem title="Save Output" rightComponent={
+      <SubItem title={t('nodes.fields.saveOutput')} rightComponent={
         <Switch
           size="sm"
           value={node.inputs.save_output}
@@ -103,7 +105,7 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
         />
       }>
       </SubItem>
-      <SubItem title="Ping Pong" rightComponent={
+      <SubItem title={t('nodes.fields.pingPong')} rightComponent={
         <Switch
           size="sm"
           value={node.inputs.pingpong}
@@ -111,7 +113,7 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
         />
       }>
       </SubItem>
-      <SubItem title="Save Metadata" rightComponent={
+      <SubItem title={t('nodes.fields.saveMetadata')} rightComponent={
         <Switch
           size="sm"
           value={node.inputs.save_metadata}
@@ -119,7 +121,7 @@ export default function VHS_VideoCombine({ node, workflowId }: VHS_VideoCombineP
         />
       }>
       </SubItem>
-      <SubItem title="Trim to Audio" rightComponent={
+      <SubItem title={t('nodes.fields.trimToAudio')} rightComponent={
         <Switch
           size="sm"
           value={node.inputs.trim_to_audio}
