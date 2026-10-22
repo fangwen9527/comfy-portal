@@ -1,8 +1,9 @@
 # Builds an installable APK — including the Simplified Chinese UI — without any
 # of the upstream signing or Sentry secrets, so it can run in a fork.
 #
-# Run it from the fork's Actions tab (or push to this branch); the APK is
-# attached to the run as a build artifact.
+# Run it from the fork's Actions tab, or push to this branch. The APK is both
+# attached to the run as an artifact and published as a release asset, because
+# artifacts require a signed-in GitHub account to download.
 name: Build Chinese APK
 
 on:
@@ -58,6 +59,9 @@ jobs:
           ANDROID_KEY_PASSWORD: android
         run: python3 .github/scripts/inject-signing-config.py android/app/build.gradle
 
+      - name: Report which ABIs are being built
+        run: grep -E '^reactNativeArchitectures' android/gradle.properties || echo "(gradle default)"
+
       # The Sentry plugin uploads source maps on every release build and fails
       # without a token (see the note in google-play.yml). A fork has no Sentry
       # project, so turn both upload paths off.
@@ -74,14 +78,20 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk ../ComfyPortal-zh.apk
           ls -lh ../ComfyPortal-zh.apk
 
+      - name: Show what is inside the APK
+        run: |
+          unzip -l ComfyPortal-zh.apk | grep -oE 'lib/[^/]+/' | sort -u
+          echo "--- total entries ---"
+          unzip -l ComfyPortal-zh.apk | tail -1
+
       - uses: actions/upload-artifact@v4
         with:
           name: ComfyPortal-zh-apk
           path: ComfyPortal-zh.apk
           retention-days: 30
 
-      # Actions artifacts need a signed-in GitHub account to download, which is
-      # useless from a phone. A release asset does not, so publish it there too.
+      # Artifacts need a signed-in GitHub account to download, which is useless
+      # from a phone. A release asset does not, so publish it there too.
       - name: Attach the APK to a release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -90,10 +100,5 @@ jobs:
           if gh release view "$TAG" > /dev/null 2>&1; then
             gh release upload "$TAG" ComfyPortal-zh.apk --clobber
           else
-            gh release create "$TAG" \
-              --title "Comfy Portal — Simplified Chinese build" \
-              --notes "Built from the local-apk-build branch, which includes the Simplified Chinese UI.
-
-Signed with a throwaway key, so it will not install over a Play Store copy — uninstall that first." \
-              ComfyPortal-zh.apk
+            gh release create "$TAG" --title "Comfy Portal - Simplified Chinese build" --notes "Includes the Simplified Chinese UI. Signed with a throwaway key, so uninstall any existing Comfy Portal before installing." ComfyPortal-zh.apk
           fi
